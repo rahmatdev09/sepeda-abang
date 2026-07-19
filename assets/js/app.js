@@ -46,6 +46,47 @@ function showLoading(show) {
   document.getElementById("loading-overlay").className = show ? "" : "hidden";
 }
 
+async function refreshAppData() {
+  if (!currentUser) return;
+  const indicator = document.getElementById("pull-refresh-indicator");
+  indicator?.classList.add("refreshing");
+  try {
+    await loadOfficeData();
+    await fetchUserHistory();
+    await fetchBroadcasts();
+    updateTodayAttendanceUI();
+  } finally {
+    setTimeout(() => indicator?.classList.remove("refreshing"), 450);
+  }
+}
+
+function initPullToRefresh() {
+  const area = document.querySelector(".app-content");
+  const indicator = document.getElementById("pull-refresh-indicator");
+  if (!area || !indicator) return;
+  let startY = 0;
+  let pulling = false;
+  area.addEventListener("touchstart", (event) => {
+    if (event.target.closest(".swipe-container")) return;
+    startY = event.touches[0].clientY;
+    pulling = area.scrollTop === 0;
+  }, { passive: true });
+  area.addEventListener("touchmove", (event) => {
+    if (!pulling) return;
+    const distance = Math.min(Math.max(event.touches[0].clientY - startY, 0), 90);
+    indicator.style.transform = `translate(-50%, ${distance - 52}px)`;
+    indicator.classList.toggle("ready", distance > 56);
+  }, { passive: true });
+  area.addEventListener("touchend", () => {
+    if (!pulling) return;
+    const ready = indicator.classList.contains("ready");
+    indicator.style.transform = "translate(-50%, -52px)";
+    indicator.classList.remove("ready");
+    pulling = false;
+    if (ready) refreshAppData();
+  }, { passive: true });
+}
+
 function hideSplash() {
   const splash = document.getElementById("native-splash");
   if (!splash) return;
@@ -175,6 +216,7 @@ async function mountUserData(userObj) {
   initCamera();
   initSwipeButton();
   initPingChecker();
+  initPullToRefresh();
   updateTodayAttendanceUI();
   hideSplash();
   lucide.createIcons();
@@ -241,6 +283,7 @@ window.handleLogout = () => {
 };
 
 window.switchTab = (tabId) => {
+  document.querySelector(".app-shell")?.classList.toggle("attendance-mode", tabId === "absen-sheet");
   document.querySelectorAll(".tab-content").forEach((el) => {
     el.classList.remove("block");
     el.classList.add("hidden");
@@ -339,7 +382,9 @@ function startLiveTrackingAndMap() {
 
 function setDistanceBadge(text, type) {
   const badge = document.getElementById("distance-badge");
+  const summary = document.getElementById("attendance-distance-label");
   badge.innerText = text;
+  if (summary) summary.innerText = text;
   if (type === "success") {
     badge.className = "bg-emerald-50 text-emerald-600";
   } else if (type === "error") {
@@ -380,6 +425,9 @@ function initCamera() {
     .getUserMedia({ video: { facingMode: "user" } })
     .then((stream) => {
       video.srcObject = stream;
+      video.muted = true;
+      video.setAttribute("playsinline", "true");
+      return video.play();
     })
     .catch(() => {
       window.showModernModal("Kamera", "Nyalakan izin kamera depan untuk verifikasi.", "warning");
