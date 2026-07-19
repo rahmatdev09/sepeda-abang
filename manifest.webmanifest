@@ -23,7 +23,7 @@
       "purpose": "any maskable"
     },
     {
-      "src": "assets/icons/icon.svg",
+      "src": "assets/icons/icon-512.png",
       "sizes": "any",
       "type": "image/svg+xml",
       "purpose": "any maskable"
