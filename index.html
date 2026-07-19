@@ -1,0 +1,281 @@
+<!doctype html>
+<html lang="id">
+  <head>
+    <meta charset="UTF-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1, viewport-fit=cover"
+    />
+    <meta name="theme-color" content="#2563eb" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta
+      name="apple-mobile-web-app-status-bar-style"
+      content="black-translucent"
+    />
+    <meta name="apple-mobile-web-app-title" content="Sepeda Abang" />
+    <meta name="mobile-web-app-capable" content="yes" />
+    <meta name="application-name" content="Sepeda Abang" />
+    <title>SEPEDA ABANG - Sistem Absensi Digital</title>
+
+    <link rel="manifest" href="manifest.webmanifest" />
+    <link rel="icon" href="assets/icons/favicon.png" type="image/png" />
+    <link rel="apple-touch-icon" href="assets/icons/apple-touch-icon.png" />
+    <link rel="apple-touch-startup-image" href="assets/icons/splash.png" />
+
+    <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <link
+      rel="stylesheet"
+      href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
+    />
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <link rel="stylesheet" href="assets/css/app.css" />
+  </head>
+  <body class="bg-slate-950 font-sans antialiased text-slate-800 min-h-screen">
+    <div id="native-splash" class="native-splash">
+      <div class="splash-logo">
+        <img src="assets/icons/icon-512.png" alt="" />
+      </div>
+      <h1>SEPEDA ABANG</h1>
+      <p>Sistem Absensi Digital Perangkat Desa Gelumbang</p>
+    </div>
+
+    <main class="app-shell">
+      <div id="loading-overlay" class="hidden">
+        <div class="loading-spinner"></div>
+        <p>Memproses Kehadiran...</p>
+      </div>
+
+      <div id="alert-modal" class="hidden">
+        <div class="modal-card">
+          <div id="alert-icon-box" class="modal-icon bg-blue-50 text-blue-600">
+            <i id="alert-icon" data-lucide="info"></i>
+          </div>
+          <h4 id="alert-title">Pemberitahuan</h4>
+          <p id="alert-desc">Pesan notifikasi sistem.</p>
+          <button onclick="closeAlertModal()" class="btn-dark">Mengerti</button>
+        </div>
+      </div>
+
+      <div id="success-modal" class="hidden">
+        <div class="modal-card">
+          <div class="modal-icon bg-emerald-50 text-emerald-600">
+            <i data-lucide="check-circle"></i>
+          </div>
+          <h4>Absen Berhasil!</h4>
+          <p id="success-message">
+            Data lokasi, waktu, dan foto berhasil disimpan.
+          </p>
+          <button onclick="closeSuccessModal()" class="btn-dark">
+            Ke Riwayat Absen
+          </button>
+        </div>
+      </div>
+
+      <section id="login-screen" class="login-screen">
+        <div class="my-auto text-center">
+          <div class="brand-mark">
+            <img src="assets/icons/icon-192.png" alt="" />
+          </div>
+          <h2>SEPEDA ABANG</h2>
+          <p>Sistem Absensi Digital Perangkat Desa Gelumbang</p>
+
+          <div class="login-form">
+            <label>USERNAME</label>
+            <input type="text" id="log-user" autocomplete="username" />
+            <label>PASSWORD</label>
+            <input
+              type="password"
+              id="log-pass"
+              autocomplete="current-password"
+            />
+            <button onclick="handleUserLogin()">Masuk Sekarang</button>
+          </div>
+        </div>
+        <p class="login-footer">PERANGKAT DESA GELUMBANG &copy; 2026</p>
+      </section>
+
+      <header class="app-header">
+        <div class="flex items-center gap-3">
+          <div id="user-initial" class="user-initial">U</div>
+          <div>
+            <span>Selamat Bertugas</span>
+            <h3 id="user-display-name">-</h3>
+          </div>
+        </div>
+        <button onclick="handleLogout()" aria-label="Keluar">
+          <i data-lucide="power"></i>
+        </button>
+      </header>
+
+      <div class="app-content">
+        <section id="tab-dashboard" class="tab-content block">
+          <div class="today-card">
+            <div>
+              <span>Status Hari Ini</span>
+              <h2 id="today-status-title">Memuat status...</h2>
+              <p id="today-status-desc">
+                Sistem sedang mengecek riwayat absensi Anda.
+              </p>
+            </div>
+            <div id="today-step-badge">0/2</div>
+          </div>
+
+          <div class="info-card">
+            <div class="info-row">
+              <div>
+                <span>Jabatan Perangkat</span>
+                <p id="dash-jabatan">-</p>
+              </div>
+              <div class="text-right">
+                <span>Jam Kerja Shift</span>
+                <p id="dash-shift" class="text-blue-600">-</p>
+              </div>
+            </div>
+            <div>
+              <span>Wilayah / Instansi Tugas</span>
+              <p id="dash-desa">-</p>
+            </div>
+          </div>
+
+          <div class="grid grid-cols-2 gap-3 mb-4">
+            <div class="metric-card">
+              <div>
+                <span>Ping Jaringan</span>
+                <p id="ping-text" class="text-emerald-600">0 ms</p>
+              </div>
+              <i data-lucide="wifi"></i>
+            </div>
+            <div class="metric-card">
+              <div>
+                <span>Status GPS</span>
+                <p id="dashboard-status-text" class="text-amber-600">
+                  Mengecek GPS...
+                </p>
+              </div>
+              <i data-lucide="map-pin"></i>
+            </div>
+          </div>
+
+          <div class="grid grid-cols-2 gap-3">
+            <div class="count-card">
+              <span>Total Pergi</span>
+              <strong id="count-pergi">0</strong>
+            </div>
+            <div class="count-card">
+              <span>Total Pulang</span>
+              <strong id="count-pulang">0</strong>
+            </div>
+          </div>
+        </section>
+
+        <section id="tab-absen-sheet" class="tab-content hidden">
+          <div class="section-title">
+            <button onclick="switchTab('dashboard')" aria-label="Kembali">
+              <i data-lucide="arrow-left"></i>
+            </button>
+            <h3 id="absen-form-title">Formulir Validasi Kehadiran</h3>
+          </div>
+
+          <div class="map-card">
+            <div class="flex justify-between items-center mb-2 px-1">
+              <span>Radar Jangkauan Jarak</span>
+              <b id="distance-badge">Mendeteksi Jarak...</b>
+            </div>
+            <div id="user-map"></div>
+          </div>
+
+          <div class="camera-card">
+            <div class="camera-preview">
+              <video id="video" autoplay playsinline muted></video>
+              <canvas id="canvas" class="hidden"></canvas>
+              <img id="captured-photo" class="hidden" alt="Foto verifikasi" />
+              <div class="face-guide"></div>
+            </div>
+            <button onclick="takePicture()" id="btn-snap" class="btn-camera">
+              <i data-lucide="camera"></i> Ambil Foto Wajah
+            </button>
+            <button
+              onclick="resetPicture()"
+              id="btn-retake"
+              class="btn-retake hidden"
+            >
+              <i data-lucide="refresh-cw"></i> Foto Ulang
+            </button>
+          </div>
+
+          <div class="swipe-container disabled" id="swipe-container-wrapper">
+            <div class="swipe-bg-fill" id="swipe-fill"></div>
+            <span class="swipe-text" id="swipe-text-label"
+              >AMBIL FOTO & HARUS DALAM RADIUS</span
+            >
+            <div class="swipe-handle" id="swipe-trigger">
+              <i data-lucide="lock" id="swipe-icon"></i>
+            </div>
+          </div>
+        </section>
+
+        <section id="tab-riwayat" class="tab-content hidden">
+          <h3 class="tab-heading">Log Riwayat Absensi Anda</h3>
+          <div id="history-container" class="flex flex-col gap-2.5"></div>
+        </section>
+
+        <section id="tab-info" class="tab-content hidden">
+          <h3 class="tab-heading">Papan Informasi & Pengumuman</h3>
+          <div id="info-container" class="flex flex-col gap-3"></div>
+        </section>
+
+        <section id="tab-profil" class="tab-content hidden">
+          <div class="profile-card">
+            <div id="profil-avatar">U</div>
+            <h3 id="prof-nama">-</h3>
+            <p id="prof-jabatan">-</p>
+            <hr />
+            <span>Instansi Penugasan</span>
+            <b id="prof-desa">-</b>
+            <span>Jam Kerja / Shift</span>
+            <b id="prof-shift">-</b>
+            <span>Username Sistem</span>
+            <b id="prof-user" class="font-mono">-</b>
+          </div>
+        </section>
+      </div>
+
+      <nav class="bottom-nav">
+        <div>
+          <button
+            onclick="switchTab('dashboard')"
+            id="nav-dashboard"
+            class="nav-btn nav-active"
+          >
+            <i data-lucide="layout-dashboard"></i><span>Utama</span>
+          </button>
+          <button
+            onclick="switchTab('riwayat')"
+            id="nav-riwayat"
+            class="nav-btn"
+          >
+            <i data-lucide="history"></i><span>Riwayat</span>
+          </button>
+        </div>
+        <button
+          onclick="switchTab('absen-sheet')"
+          id="nav-absen-sheet"
+          class="nav-btn nav-absen"
+        >
+          <i data-lucide="fingerprint"></i>
+        </button>
+        <div>
+          <button onclick="switchTab('info')" id="nav-info" class="nav-btn">
+            <i data-lucide="bell"></i><span>Info</span>
+          </button>
+          <button onclick="switchTab('profil')" id="nav-profil" class="nav-btn">
+            <i data-lucide="user"></i><span>Profil</span>
+          </button>
+        </div>
+      </nav>
+    </main>
+
+    <script type="module" src="assets/js/app.js"></script>
+  </body>
+</html>

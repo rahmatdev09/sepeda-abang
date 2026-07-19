@@ -1,0 +1,1557 @@
+<!doctype html>
+<html lang="id">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>PANEL KONTROL ADMIN - RESTORED FULL</title>
+    <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <style>
+      body {
+        -webkit-tap-highlight-color: transparent;
+      }
+      .sidebar-active {
+        background-color: rgba(37, 99, 235, 0.08);
+        color: #1d4ed8;
+        border-left: 4px solid #2563eb;
+      }
+    </style>
+  </head>
+  <body
+    class="bg-slate-50 font-sans antialiased text-slate-800 min-h-screen flex"
+  >
+    <!-- ==================== SIDEBAR UTAMA ==================== -->
+    <aside
+      class="w-64 bg-white border-r border-slate-200 flex flex-col justify-between hidden md:flex"
+      id="main-sidebar"
+    >
+      <div>
+        <div class="p-6 flex items-center gap-3 border-b border-slate-100">
+          <div
+            class="w-9 h-9 bg-blue-600 rounded-xl flex items-center justify-center text-white shadow-md"
+            id="app-logo-container"
+          >
+            <i
+              data-lucide="shield-check"
+              class="w-5 h-5"
+              id="app-logo-icon"
+            ></i>
+          </div>
+          <div>
+            <h2
+              class="text-sm font-black text-slate-900 tracking-wide"
+              id="admin-role-display"
+            >
+              HQ ADMIN
+            </h2>
+            <p
+              class="text-[10px] text-slate-500 font-bold uppercase tracking-wider"
+              id="admin-scope-display"
+            >
+              LOADING...
+            </p>
+          </div>
+        </div>
+
+        <nav class="p-4 flex flex-col gap-1">
+          <button
+            onclick="switchAdminTab('dashboard')"
+            id="side-dashboard"
+            class="sidebar-btn flex items-center gap-3 w-full p-3 rounded-xl text-xs font-bold text-slate-600 hover:bg-slate-100 hover:text-slate-900 transition cursor-pointer sidebar-active"
+          >
+            <i data-lucide="layout-dashboard" class="w-4 h-4"></i> Dashboard
+            Ringkasan
+          </button>
+          <button
+            onclick="switchAdminTab('log')"
+            id="side-log"
+            class="sidebar-btn flex items-center gap-3 w-full p-3 rounded-xl text-xs font-bold text-slate-600 hover:bg-slate-100 hover:text-slate-900 transition cursor-pointer"
+          >
+            <i data-lucide="table-properties" class="w-4 h-4"></i> Log Absensi
+            Staff
+          </button>
+          <button
+            onclick="switchAdminTab('wilayah')"
+            id="side-wilayah"
+            class="sidebar-btn flex items-center gap-3 w-full p-3 rounded-xl text-xs font-bold text-slate-600 hover:bg-slate-100 hover:text-slate-900 transition cursor-pointer"
+          >
+            <i data-lucide="map" class="w-4 h-4"></i> Wilayah Operasional
+          </button>
+          <button
+            onclick="switchAdminTab('akun')"
+            id="side-akun"
+            class="sidebar-btn flex items-center gap-3 w-full p-3 rounded-xl text-xs font-bold text-slate-600 hover:bg-slate-100 hover:text-slate-900 transition cursor-pointer"
+          >
+            <i data-lucide="users" class="w-4 h-4"></i> Akun Karyawan
+          </button>
+          <button
+            onclick="switchAdminTab('broadcast')"
+            id="side-broadcast"
+            class="sidebar-btn flex items-center gap-3 w-full p-3 rounded-xl text-xs font-bold text-slate-600 hover:bg-slate-100 hover:text-slate-900 transition cursor-pointer"
+          >
+            <i data-lucide="megaphone" class="w-4 h-4"></i> Broadcast &
+            Notifikasi
+          </button>
+          <button
+            onclick="switchAdminTab('setting')"
+            id="side-setting"
+            class="sidebar-btn flex items-center gap-3 w-full p-3 rounded-xl text-xs font-bold text-slate-600 hover:bg-slate-100 hover:text-slate-900 transition cursor-pointer"
+          >
+            <i data-lucide="settings" class="w-4 h-4"></i> Setting Aplikasi
+          </button>
+        </nav>
+      </div>
+
+      <div class="p-4 border-t border-slate-100">
+        <button
+          onclick="handleAdminLogout()"
+          class="w-full bg-slate-100 hover:bg-red-50 text-slate-600 hover:text-red-600 font-bold py-3 rounded-xl text-xs transition flex items-center justify-center gap-2 cursor-pointer border border-slate-200"
+        >
+          <i data-lucide="log-out" class="w-4 h-4"></i> Keluar Panel
+        </button>
+      </div>
+    </aside>
+
+    <!-- ==================== KONTEN AREA UTAMA ==================== -->
+    <main class="flex-1 flex flex-col min-w-0 bg-slate-50">
+      <header
+        class="h-16 bg-white border-b border-slate-200 px-6 flex items-center justify-between shadow-xs"
+      >
+        <h3
+          id="admin-page-title"
+          class="text-xs font-black uppercase tracking-wider text-slate-500"
+        >
+          DASHBOARD PANEL
+        </h3>
+        <div class="flex items-center gap-3">
+          <span
+            class="w-2.5 h-2.5 bg-emerald-500 rounded-full animate-pulse"
+          ></span>
+          <span
+            class="text-[10px] font-mono font-bold text-slate-600 tracking-wide"
+            >SYSTEM ACTIVE</span
+          >
+        </div>
+      </header>
+
+      <div class="p-6 flex-1 overflow-y-auto max-w-6xl w-full mx-auto">
+        <!-- TAB 0: DASHBOARD -->
+        <div id="tab-dashboard" class="admin-tab-content block">
+          <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-6">
+            <div
+              class="bg-white p-5 rounded-2xl border border-slate-200 shadow-xs flex items-center gap-4"
+            >
+              <div
+                class="w-10 h-10 bg-blue-50 text-blue-600 rounded-xl flex items-center justify-center btn-theme-bg text-theme-color"
+              >
+                <i data-lucide="users" class="w-5 h-5"></i>
+              </div>
+              <div>
+                <p
+                  class="text-[11px] text-slate-400 font-bold uppercase tracking-wider"
+                >
+                  Total Karyawan
+                </p>
+                <h3
+                  id="dash-total-staff"
+                  class="text-lg font-black text-slate-900 mt-0.5"
+                >
+                  0
+                </h3>
+              </div>
+            </div>
+            <div
+              class="bg-white p-5 rounded-2xl border border-slate-200 shadow-xs flex items-center gap-4"
+            >
+              <div
+                class="w-10 h-10 bg-emerald-50 text-emerald-600 rounded-xl flex items-center justify-center"
+              >
+                <i data-lucide="check-circle" class="w-5 h-5"></i>
+              </div>
+              <div>
+                <p
+                  class="text-[11px] text-slate-400 font-bold uppercase tracking-wider"
+                >
+                  Hadir Hari Ini
+                </p>
+                <h3
+                  id="dash-total-absen"
+                  class="text-lg font-black text-slate-900 mt-0.5"
+                >
+                  0
+                </h3>
+              </div>
+            </div>
+            <div
+              class="bg-white p-5 rounded-2xl border border-slate-200 shadow-xs flex items-center gap-4"
+            >
+              <div
+                class="w-10 h-10 bg-amber-50 text-amber-600 rounded-xl flex items-center justify-center"
+              >
+                <i data-lucide="map" class="w-5 h-5"></i>
+              </div>
+              <div>
+                <p
+                  class="text-[11px] text-slate-400 font-bold uppercase tracking-wider"
+                >
+                  Wilayah Aktif
+                </p>
+                <h3
+                  id="dash-total-wilayah"
+                  class="text-lg font-black text-slate-900 mt-0.5"
+                >
+                  0
+                </h3>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- TAB 1: LOG ABSENSI (WITH FILTER, SEARCH & PAGINATION) -->
+        <div id="tab-log" class="admin-tab-content hidden">
+          <div
+            class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-5"
+          >
+            <div class="flex flex-1 gap-2 max-w-xl">
+              <div class="relative flex-1">
+                <input
+                  type="text"
+                  id="search-log-input"
+                  oninput="handleLogSearch()"
+                  placeholder="Cari nama staf di log..."
+                  class="w-full pl-9 pr-4 py-2 bg-white border border-slate-200 rounded-xl text-xs text-slate-800 focus:outline-hidden shadow-xs"
+                />
+                <i
+                  data-lucide="search"
+                  class="w-4 h-4 text-slate-400 absolute left-3 top-2.5"
+                ></i>
+              </div>
+              <select
+                id="filter-log-desa"
+                onchange="handleLogSearch()"
+                class="p-2 bg-white border border-slate-200 rounded-xl text-xs font-bold text-slate-600 focus:outline-hidden shadow-xs min-w-[150px]"
+              >
+                <option value="all">Semua Wilayah</option>
+              </select>
+            </div>
+          </div>
+
+          <div
+            class="bg-white border border-slate-200 rounded-2xl overflow-hidden shadow-xs"
+          >
+            <table class="w-full text-left border-collapse">
+              <thead>
+                <tr
+                  class="bg-slate-50 border-b border-slate-200 text-[10px] font-black uppercase tracking-wider text-slate-500"
+                >
+                  <th class="p-4 w-16">Foto</th>
+                  <th class="p-4">Nama Staff</th>
+                  <th class="p-4">Waktu Presensi</th>
+                  <th class="p-4">Status</th>
+                  <th class="p-4 text-right">Aksi</th>
+                </tr>
+              </thead>
+              <tbody
+                id="table-log-body"
+                class="divide-y divide-slate-100 text-xs text-slate-700"
+              >
+                <tr>
+                  <td colspan="5" class="p-4 text-center text-slate-400">
+                    Memuat data log absensi...
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+
+            <div
+              class="p-4 bg-slate-50 border-t border-slate-200 flex items-center justify-between text-xs"
+            >
+              <span class="text-slate-500 font-medium" id="log-pagination-info"
+                >Menampilkan 0-0 dari 0 data</span
+              >
+              <div class="flex gap-2">
+                <button
+                  id="btn-prev-log"
+                  onclick="changeLogPage(-1)"
+                  class="px-3 py-1.5 bg-white border border-slate-200 text-slate-700 font-bold rounded-lg hover:bg-slate-100 disabled:opacity-40 transition cursor-pointer"
+                >
+                  Prev
+                </button>
+                <button
+                  id="btn-next-log"
+                  onclick="changeLogPage(1)"
+                  class="px-3 py-1.5 bg-white border border-slate-200 text-slate-700 font-bold rounded-lg hover:bg-slate-100 disabled:opacity-40 transition cursor-pointer"
+                >
+                  Next
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- TAB 2: WILAYAH GEOFENCE -->
+        <div id="tab-wilayah" class="admin-tab-content hidden">
+          <div class="flex items-center justify-between mb-5">
+            <p class="text-[11px] text-slate-500 font-medium">
+              Daftar batas koordinat geofence instansi/kantor desa.
+            </p>
+            <button
+              onclick="openWilayahModal('')"
+              class="bg-blue-600 hover:bg-blue-700 text-white text-xs font-extrabold px-4 py-2.5 rounded-xl transition flex items-center gap-2 cursor-pointer btn-theme"
+            >
+              <i data-lucide="plus-circle" class="w-4 h-4"></i> Tambah Wilayah
+            </button>
+          </div>
+          <div
+            class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4"
+            id="grid-wilayah-container"
+          ></div>
+        </div>
+
+        <!-- TAB 4: MANAJEMEN AKUN KARYAWAN -->
+        <div id="tab-akun" class="admin-tab-content hidden">
+          <div
+            class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-5"
+          >
+            <div class="flex flex-1 gap-2 max-w-xl">
+              <div class="relative flex-1">
+                <input
+                  type="text"
+                  id="search-user-input"
+                  oninput="handleUserSearch()"
+                  placeholder="Cari nama / username staf..."
+                  class="w-full pl-9 pr-4 py-2 bg-white border border-slate-200 rounded-xl text-xs text-slate-800 focus:outline-hidden shadow-xs"
+                />
+                <i
+                  data-lucide="search"
+                  class="w-4 h-4 text-slate-400 absolute left-3 top-2.5"
+                ></i>
+              </div>
+              <select
+                id="filter-desa-input"
+                onchange="handleUserSearch()"
+                class="p-2 bg-white border border-slate-200 rounded-xl text-xs font-bold text-slate-600 focus:outline-hidden shadow-xs min-w-[150px]"
+              >
+                <option value="all">Semua Wilayah</option>
+              </select>
+            </div>
+            <button
+              onclick="openAkunModal('')"
+              class="bg-blue-600 hover:bg-blue-700 text-white text-xs font-extrabold px-4 py-2 rounded-xl transition flex items-center gap-2 shadow-xs cursor-pointer btn-theme"
+            >
+              <i data-lucide="user-plus" class="w-4 h-4"></i> Buat Akun Baru
+            </button>
+          </div>
+
+          <div
+            class="bg-white border border-slate-200 rounded-2xl overflow-hidden shadow-xs"
+          >
+            <table class="w-full text-left border-collapse">
+              <thead>
+                <tr
+                  class="bg-slate-50 border-b border-slate-200 text-[10px] font-black uppercase tracking-wider text-slate-500"
+                >
+                  <th class="p-4">Nama Lengkap</th>
+                  <th class="p-4">Username</th>
+                  <th class="p-4">Jabatan</th>
+                  <th class="p-4">Wilayah Desa</th>
+                  <th class="p-4 text-right">Aksi</th>
+                </tr>
+              </thead>
+              <tbody
+                id="table-user-body"
+                class="divide-y divide-slate-100 text-xs font-medium text-slate-700"
+              >
+                <tr>
+                  <td colspan="5" class="p-4 text-center text-slate-400">
+                    Memuat data karyawan...
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+
+            <div
+              class="p-4 bg-slate-50 border-t border-slate-200 flex items-center justify-between text-xs"
+            >
+              <span class="text-slate-500 font-medium" id="pagination-info"
+                >Menampilkan 0-0 dari 0 data</span
+              >
+              <div class="flex gap-2">
+                <button
+                  id="btn-prev-page"
+                  onclick="changeUserPage(-1)"
+                  class="px-3 py-1.5 bg-white border border-slate-200 text-slate-700 font-bold rounded-lg hover:bg-slate-100 disabled:opacity-40 transition cursor-pointer"
+                >
+                  Prev
+                </button>
+                <button
+                  id="btn-next-page"
+                  onclick="changeUserPage(1)"
+                  class="px-3 py-1.5 bg-white border border-slate-200 text-slate-700 font-bold rounded-lg hover:bg-slate-100 disabled:opacity-40 transition cursor-pointer"
+                >
+                  Next
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- TAB 5: BROADCAST MESSAGE (WITH EDIT & DELETE) -->
+        <div id="tab-broadcast" class="admin-tab-content hidden">
+          <div class="flex items-center justify-between mb-5">
+            <p class="text-[11px] text-slate-500 font-medium">
+              Kirim pengumuman push notification langsung ke device staff.
+            </p>
+            <button
+              onclick="openBroadcastModal()"
+              class="bg-blue-600 hover:bg-blue-700 text-white text-xs font-extrabold px-4 py-2.5 rounded-xl transition flex items-center gap-2 shadow-xs cursor-pointer btn-theme"
+            >
+              <i data-lucide="send" class="w-4 h-4"></i> Buat Broadcast Baru
+            </button>
+          </div>
+          <div
+            class="bg-white border border-slate-200 rounded-2xl overflow-hidden shadow-xs"
+          >
+            <table class="w-full text-left border-collapse">
+              <thead>
+                <tr
+                  class="bg-slate-50 border-b border-slate-200 text-[10px] font-black uppercase tracking-wider text-slate-500"
+                >
+                  <th class="p-4">Waktu</th>
+                  <th class="p-4">Judul</th>
+                  <th class="p-4">Isi Pesan</th>
+                  <th class="p-4">Tujuan Wilayah</th>
+                  <th class="p-4 text-right">Aksi</th>
+                </tr>
+              </thead>
+              <tbody
+                id="table-broadcast-body"
+                class="divide-y divide-slate-100 text-xs text-slate-700"
+              >
+                <tr>
+                  <td colspan="5" class="p-4 text-center text-slate-400">
+                    Memuat data broadcast...
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- TAB 6: SETTING APLIKASI USER (WITH COLOR & LOGO CUSTOMIZER) -->
+        <div id="tab-setting" class="admin-tab-content hidden">
+          <div
+            class="bg-white border border-slate-200 rounded-2xl p-6 shadow-xs max-w-xl"
+          >
+            <h4
+              class="text-sm font-black text-slate-900 mb-4 flex items-center gap-2"
+            >
+              <i data-lucide="settings" class="text-blue-600"></i> Pengaturan
+              Global Parameter
+            </h4>
+            <div class="space-y-4">
+              <div>
+                <label class="block text-[10px] font-bold text-slate-400 mb-1"
+                  >JAM MASUK DEFAULT</label
+                >
+                <input
+                  type="time"
+                  id="set-jam-masuk"
+                  class="w-full p-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs"
+                />
+              </div>
+              <div>
+                <label class="block text-[10px] font-bold text-slate-400 mb-1"
+                  >JAM KELUAR DEFAULT</label
+                >
+                <input
+                  type="time"
+                  id="set-jam-keluar"
+                  class="w-full p-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs"
+                />
+              </div>
+              <div>
+                <label class="block text-[10px] font-bold text-slate-400 mb-1"
+                  >STATUS APLIKASI USER</label
+                >
+                <select
+                  id="set-app-status"
+                  class="w-full p-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs font-bold"
+                >
+                  <option value="active">Buka Sistem Absensi</option>
+                  <option value="maintenance">Maintenance/Kunci Akses</option>
+                </select>
+              </div>
+              <hr class="border-slate-100" />
+              <div>
+                <label class="block text-[10px] font-bold text-slate-400 mb-1"
+                  >WARNA TEMA PANEL (HEX COLOR)</label
+                >
+                <div class="flex gap-2">
+                  <input
+                    type="color"
+                    id="set-theme-color"
+                    class="w-10 h-10 border-0 rounded-xl cursor-pointer bg-transparent"
+                  />
+                  <input
+                    type="text"
+                    id="set-theme-hex"
+                    placeholder="#2563eb"
+                    class="flex-1 p-2 bg-slate-50 border border-slate-200 rounded-xl text-xs uppercase font-mono"
+                  />
+                </div>
+              </div>
+              <div>
+                <label class="block text-[10px] font-bold text-slate-400 mb-1"
+                  >URL LOGO KUSTOM INSTANSI</label
+                >
+                <input
+                  type="text"
+                  id="set-logo-url"
+                  placeholder="https://domain.com/logo.png"
+                  class="w-full p-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs"
+                />
+              </div>
+              <button
+                id="btn-save-settings"
+                class="w-full bg-blue-600 hover:bg-blue-700 text-white py-2.5 rounded-xl text-xs font-extrabold transition cursor-pointer btn-theme"
+              >
+                Simpan Konfigurasi
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </main>
+
+    <!-- ==================== MODALS CONTROL ==================== -->
+    <!-- MODAL: DETAIL LOG ABSENSI -->
+    <div
+      id="modal-detail-log"
+      class="hidden fixed inset-0 bg-slate-900/60 backdrop-blur-xs z-50 flex items-center justify-center p-4"
+    >
+      <div
+        class="bg-white w-full max-w-sm rounded-3xl p-6 shadow-xl text-center"
+      >
+        <h4
+          class="text-sm font-black text-slate-900 mb-4 flex items-center justify-center gap-2"
+        >
+          <i data-lucide="file-text"></i> Rincian Absensi Staf
+        </h4>
+        <div
+          id="log-detail-avatar-container"
+          class="flex justify-center mb-3"
+        ></div>
+        <div class="space-y-2 text-left text-xs border-t border-slate-100 pt-3">
+          <p>
+            <strong class="text-slate-400 text-[10px] block uppercase"
+              >NAMA KARYAWAN</strong
+            >
+            <span id="det-log-nama" class="font-bold text-slate-900">-</span>
+          </p>
+          <p>
+            <strong class="text-slate-400 text-[10px] block uppercase"
+              >WAKTU PRESENSI</strong
+            >
+            <span id="det-log-waktu" class="font-mono">-</span>
+          </p>
+          <p>
+            <strong class="text-slate-400 text-[10px] block uppercase"
+              >STATUS KEHADIRAN</strong
+            >
+            <span id="det-log-status" class="font-bold">-</span>
+          </p>
+          <p>
+            <strong class="text-slate-400 text-[10px] block uppercase"
+              >KOORDINAT PRESENSI USER</strong
+            >
+            <span id="det-log-koordinat" class="font-mono text-blue-600"
+              >-</span
+            >
+          </p>
+        </div>
+        <button
+          onclick="
+            document.getElementById('modal-detail-log').classList.add('hidden')
+          "
+          class="w-full bg-slate-100 hover:bg-slate-200 font-bold text-slate-700 py-2 rounded-xl text-xs mt-4 cursor-pointer"
+        >
+          Tutup Rincian
+        </button>
+      </div>
+    </div>
+
+    <!-- MODAL: KARYAWAN -->
+    <div
+      id="modal-akun"
+      class="hidden fixed inset-0 bg-slate-900/60 backdrop-blur-xs z-50 flex items-center justify-center p-4"
+    >
+      <div class="bg-white w-full max-w-md rounded-3xl p-6 shadow-xl">
+        <h4
+          class="text-sm font-black text-slate-900 mb-4 flex items-center gap-2"
+        >
+          <i data-lucide="user-plus"></i> Form Akun Staf
+        </h4>
+        <input type="hidden" id="user-edit-id" />
+        <div class="space-y-3">
+          <div>
+            <label class="block text-[10px] font-bold text-slate-400 mb-1"
+              >NAMA LENGKAP</label
+            ><input
+              type="text"
+              id="user-nama"
+              class="w-full p-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs"
+            />
+          </div>
+          <div>
+            <label class="block text-[10px] font-bold text-slate-400 mb-1"
+              >USERNAME</label
+            ><input
+              type="text"
+              id="user-username"
+              class="w-full p-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs"
+            />
+          </div>
+          <div>
+            <label class="block text-[10px] font-bold text-slate-400 mb-1"
+              >PASSWORD</label
+            ><input
+              type="password"
+              id="user-password"
+              class="w-full p-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs"
+            />
+          </div>
+          <div>
+            <label class="block text-[10px] font-bold text-slate-400 mb-1"
+              >JABATAN</label
+            ><input
+              type="text"
+              id="user-jabatan"
+              class="w-full p-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs"
+            />
+          </div>
+          <div>
+            <label class="block text-[10px] font-bold text-slate-400 mb-1"
+              >ROLE</label
+            ><select
+              id="user-role"
+              class="w-full p-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs"
+            >
+              <option value="perangkat_desa">Perangkat Desa</option>
+              <option value="admin_desa">Admin Desa</option>
+              <option value="staff_kecamatan">Staff Kecamatan</option>
+              <option value="admin_kecamatan">Admin Kecamatan</option>
+            </select>
+          </div>
+          <div>
+            <label class="block text-[10px] font-bold text-slate-400 mb-1"
+              >PENEMPATAN DESA</label
+            ><select
+              id="user-desa-id"
+              class="w-full p-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs"
+            ></select>
+          </div>
+        </div>
+        <div class="flex gap-2 mt-4">
+          <button
+            onclick="closeAkunModal()"
+            class="w-1/3 bg-slate-100 text-slate-500 py-2 rounded-xl text-xs cursor-pointer"
+          >
+            Batal
+          </button>
+          <button
+            id="btn-save-user"
+            class="w-2/3 bg-blue-600 text-white py-2 rounded-xl text-xs font-bold cursor-pointer btn-theme"
+          >
+            Simpan
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- MODAL: WILAYAH -->
+    <div
+      id="modal-wilayah"
+      class="hidden fixed inset-0 bg-slate-900/60 backdrop-blur-xs z-50 flex items-center justify-center p-4"
+    >
+      <div class="bg-white w-full max-w-md rounded-3xl p-6 shadow-xl">
+        <h4
+          class="text-sm font-black text-slate-900 mb-4 flex items-center gap-2"
+        >
+          <i data-lucide="map-pin"></i> Form Wilayah Desa
+        </h4>
+        <input type="hidden" id="wilayah-edit-id" />
+        <div class="space-y-3">
+          <div>
+            <label class="block text-[10px] font-bold text-slate-400 mb-1"
+              >NAMA DESA</label
+            ><input
+              type="text"
+              id="wil-nama"
+              class="w-full p-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs"
+            />
+          </div>
+          <div>
+            <label class="block text-[10px] font-bold text-slate-400 mb-1"
+              >LATITUDE COORDINATE</label
+            ><input
+              type="text"
+              id="wil-lat"
+              placeholder="Contoh: -7.123456"
+              class="w-full p-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs"
+            />
+          </div>
+          <div>
+            <label class="block text-[10px] font-bold text-slate-400 mb-1"
+              >LONGITUDE COORDINATE</label
+            ><input
+              type="text"
+              id="wil-lng"
+              placeholder="Contoh: 112.123456"
+              class="w-full p-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs"
+            />
+          </div>
+          <div>
+            <label class="block text-[10px] font-bold text-slate-400 mb-1"
+              >RADIUS GEOFENCE (METER)</label
+            ><input
+              type="number"
+              id="wil-radius"
+              class="w-full p-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs"
+            />
+          </div>
+        </div>
+        <div class="flex gap-2 mt-4">
+          <button
+            onclick="closeWilayahModal()"
+            class="w-1/3 bg-slate-100 text-slate-500 py-2 rounded-xl text-xs cursor-pointer"
+          >
+            Batal
+          </button>
+          <button
+            id="btn-save-wilayah"
+            class="w-2/3 bg-blue-600 text-white py-2 rounded-xl text-xs font-bold cursor-pointer btn-theme"
+          >
+            Simpan
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- MODAL: BROADCAST -->
+    <div
+      id="modal-broadcast"
+      class="hidden fixed inset-0 bg-slate-900/60 backdrop-blur-xs z-50 flex items-center justify-center p-4"
+    >
+      <div class="bg-white w-full max-w-md rounded-3xl p-6 shadow-xl">
+        <h4
+          class="text-sm font-black text-slate-900 mb-4 flex items-center gap-2"
+        >
+          <i data-lucide="megaphone"></i> Form Broadcast
+        </h4>
+        <input type="hidden" id="bc-edit-id" />
+        <div class="space-y-3">
+          <div>
+            <label class="block text-[10px] font-bold text-slate-400 mb-1"
+              >TARGET WILAYAH DESA</label
+            ><select
+              id="bc-target-desa"
+              class="w-full p-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs font-bold"
+            ></select>
+          </div>
+          <div>
+            <label class="block text-[10px] font-bold text-slate-400 mb-1"
+              >JUDUL</label
+            ><input
+              type="text"
+              id="bc-title"
+              class="w-full p-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs"
+            />
+          </div>
+          <div>
+            <label class="block text-[10px] font-bold text-slate-400 mb-1"
+              >ISI PESAN</label
+            ><textarea
+              id="bc-body"
+              rows="3"
+              class="w-full p-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs"
+            ></textarea>
+          </div>
+        </div>
+        <div class="flex gap-2 mt-4">
+          <button
+            onclick="closeBroadcastModal()"
+            class="w-1/3 bg-slate-100 text-slate-500 py-2 rounded-xl text-xs cursor-pointer"
+          >
+            Batal
+          </button>
+          <button
+            id="btn-save-bc"
+            class="w-2/3 bg-blue-600 text-white py-2 rounded-xl text-xs font-bold cursor-pointer btn-theme"
+          >
+            Simpan
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- ==================== LOGIKA UTAMA GLOBAL ==================== -->
+    <script>
+      let CURRENT_ADMIN = JSON.parse(localStorage.getItem("active_admin"));
+      if (!CURRENT_ADMIN) {
+        location.href = "login-admin.html";
+      }
+      const KECAMATAN_ROLES = ["admin_kecamatan", "staff_kecamatan"];
+      const ADMIN_ROLE_LABELS = {
+        admin_kecamatan: "Admin Kecamatan",
+        staff_kecamatan: "Staff Kecamatan",
+        admin_desa: "Admin Desa",
+        perangkat_desa: "Perangkat Desa",
+      };
+      window.ADMIN_ROLE_LABELS = ADMIN_ROLE_LABELS;
+      window.isKecamatanRole = function (role) {
+        return KECAMATAN_ROLES.includes(role);
+      };
+
+      window.desasList = [];
+      window.userListRaw = [];
+      window.userListFiltered = [];
+      window.currentPageUser = 1;
+      window.itemsPerPageUser = 5;
+
+      // Log absensi state variables
+      window.logListRaw = [];
+      window.logListFiltered = [];
+      window.currentPageLog = 1;
+      window.itemsPerPageLog = 5;
+
+      // Broadcast raw state
+      window.broadcastListRaw = [];
+
+      window.switchAdminTab = function (tabId) {
+        document.querySelectorAll(".admin-tab-content").forEach((el) => {
+          el.classList.remove("block");
+          el.classList.add("hidden");
+        });
+        const targetTab = document.getElementById(`tab-${tabId}`);
+        if (targetTab) {
+          targetTab.classList.remove("hidden");
+          targetTab.classList.add("block");
+        }
+
+        document
+          .querySelectorAll(".sidebar-btn")
+          .forEach((b) => b.classList.remove("sidebar-active"));
+        const targetBtn = document.getElementById(`side-${tabId}`);
+        if (targetBtn) targetBtn.classList.add("sidebar-active");
+
+        document.getElementById("admin-page-title").innerText =
+          tabId.toUpperCase() + " PANEL";
+        if (typeof lucide !== "undefined") lucide.createIcons();
+      };
+
+      window.handleAdminLogout = function () {
+        localStorage.removeItem("active_admin");
+        location.href = "login-admin.html";
+      };
+
+      // Apply Dynamic Theme Styling
+      window.applyPanelThemeColor = function (hexColor) {
+        if (!hexColor) return;
+        document.querySelectorAll(".btn-theme").forEach((el) => {
+          el.style.backgroundColor = hexColor;
+        });
+        document.querySelectorAll(".btn-theme-bg").forEach((el) => {
+          el.style.backgroundColor = hexColor + "15";
+        });
+        document.querySelectorAll(".text-theme-color").forEach((el) => {
+          el.style.color = hexColor;
+        });
+      };
+
+      window.openAkunModal = function (id = "") {
+        document.getElementById("user-edit-id").value = id;
+        if (!id) {
+          document.getElementById("user-nama").value = "";
+          document.getElementById("user-username").value = "";
+          document.getElementById("user-password").value = "";
+          document.getElementById("user-jabatan").value = "";
+        } else {
+          const u = window.userListRaw.find((x) => x.id === id);
+          if (u) {
+            document.getElementById("user-nama").value =
+              u.nama || u.namaLengkap || "";
+            document.getElementById("user-username").value = u.username || "";
+            document.getElementById("user-password").value = u.password || "";
+            document.getElementById("user-jabatan").value = u.jabatan || "";
+            document.getElementById("user-role").value =
+              u.role || "perangkat_desa";
+            document.getElementById("user-desa-id").value = u.desaId || "";
+          }
+        }
+        document.getElementById("modal-akun").classList.remove("hidden");
+      };
+      window.closeAkunModal = function () {
+        document.getElementById("modal-akun").classList.add("hidden");
+      };
+
+      window.openWilayahModal = function (id = "") {
+        document.getElementById("wilayah-edit-id").value = id;
+        if (!id) {
+          document.getElementById("wil-nama").value = "";
+          document.getElementById("wil-lat").value = "";
+          document.getElementById("wil-lng").value = "";
+          document.getElementById("wil-radius").value = "";
+        } else {
+          const w = window.desasList.find((x) => x.id === id);
+          if (w) {
+            document.getElementById("wil-nama").value =
+              w.namaDesa || w.nama || "";
+            document.getElementById("wil-lat").value =
+              w.latitude !== undefined
+                ? w.latitude
+                : w.lat !== undefined
+                  ? w.lat
+                  : "";
+            document.getElementById("wil-lng").value =
+              w.longitude !== undefined
+                ? w.longitude
+                : w.lon !== undefined
+                  ? w.lon
+                  : "";
+            document.getElementById("wil-radius").value = w.radius || "";
+          }
+        }
+        document.getElementById("modal-wilayah").classList.remove("hidden");
+      };
+      window.closeWilayahModal = function () {
+        document.getElementById("modal-wilayah").classList.add("hidden");
+      };
+
+      window.openBroadcastModal = function (id = "") {
+        document.getElementById("bc-edit-id").value = id;
+        const target = document.getElementById("bc-target-desa");
+        target.innerHTML = "";
+
+        if (window.isKecamatanRole(CURRENT_ADMIN.role)) {
+          target.disabled = false;
+          target.innerHTML += `<option value="all">Semua Wilayah Desa</option>`;
+          window.desasList.forEach((d) => {
+            target.innerHTML += `<option value="${d.id}">Desa: ${d.namaDesa || d.nama}</option>`;
+          });
+        } else {
+          target.disabled = true;
+          const activeD = window.desasList.find(
+            (x) => x.id === CURRENT_ADMIN.desaId,
+          );
+          target.innerHTML = `<option value="${CURRENT_ADMIN.desaId}">${activeD ? activeD.namaDesa || activeD.nama : "Desa Anda"}</option>`;
+        }
+
+        if (!id) {
+          document.getElementById("bc-title").value = "";
+          document.getElementById("bc-body").value = "";
+        } else {
+          const b = window.broadcastListRaw.find((x) => x.id === id);
+          if (b) {
+            document.getElementById("bc-title").value = b.title || "";
+            document.getElementById("bc-body").value =
+              b.body || b.pesan || b.message || "";
+            target.value = b.scopeDesaId || "all";
+          }
+        }
+        document.getElementById("modal-broadcast").classList.remove("hidden");
+      };
+      window.closeBroadcastModal = function () {
+        document.getElementById("modal-broadcast").classList.add("hidden");
+      };
+
+      window.viewDetailLog = function (id) {
+        const log = window.logListRaw.find((x) => x.id === id);
+        if (!log) return;
+
+        const imgUrl = log.fotoUrl || log.avatar || log.foto || "";
+        const container = document.getElementById(
+          "log-detail-avatar-container",
+        );
+        container.innerHTML = imgUrl
+          ? `<img src="${imgUrl}" class="w-24 h-24 rounded-full object-cover border-4 border-slate-100 shadow-sm">`
+          : `<div class="w-24 h-24 rounded-full bg-slate-200 flex items-center justify-center font-bold text-slate-500">No Photo</div>`;
+
+        document.getElementById("det-log-nama").innerText =
+          log.namaStaff || log.nama || log.namaLengkap || "-";
+        document.getElementById("det-log-waktu").innerText =
+          log.waktu || log.tanggal || "-";
+        document.getElementById("det-log-status").innerText =
+          log.status || "HADIR";
+
+        const userLat = log.latitude || log.lat || "-";
+        const userLng = log.longitude || log.lon || "-";
+        document.getElementById("det-log-koordinat").innerText =
+          `Lat: ${userLat}, Lng: ${userLng}`;
+
+        document.getElementById("modal-detail-log").classList.remove("hidden");
+        if (typeof lucide !== "undefined") lucide.createIcons();
+      };
+
+      // Search and Filters Logic for Users Table
+      window.handleUserSearch = function () {
+        const q = document
+          .getElementById("search-user-input")
+          .value.toLowerCase()
+          .trim();
+        const filterDesa = document.getElementById("filter-desa-input").value;
+
+        window.userListFiltered = window.userListRaw.filter((u) => {
+          const matchQuery =
+            (u.nama && u.nama.toLowerCase().includes(q)) ||
+            (u.namaLengkap && u.namaLengkap.toLowerCase().includes(q)) ||
+            (u.username && u.username.toLowerCase().includes(q));
+          const matchDesa = filterDesa === "all" || u.desaId === filterDesa;
+          return matchQuery && matchDesa;
+        });
+        window.currentPageUser = 1;
+        window.renderUserTable();
+      };
+
+      window.changeUserPage = function (dir) {
+        window.currentPageUser += dir;
+        window.renderUserTable();
+      };
+
+      window.renderUserTable = function () {
+        const tbody = document.getElementById("table-user-body");
+        if (!tbody) return;
+        tbody.innerHTML = "";
+
+        const total = window.userListFiltered.length;
+        const maxPage = Math.ceil(total / window.itemsPerPageUser) || 1;
+
+        if (window.currentPageUser < 1) window.currentPageUser = 1;
+        if (window.currentPageUser > maxPage) window.currentPageUser = maxPage;
+
+        const start = (window.currentPageUser - 1) * window.itemsPerPageUser;
+        const end = Math.min(start + window.itemsPerPageUser, total);
+        const pageData = window.userListFiltered.slice(start, end);
+
+        document.getElementById("pagination-info").innerText =
+          `Menampilkan ${total > 0 ? start + 1 : 0}-${end} dari ${total} data`;
+        document.getElementById("btn-prev-page").disabled =
+          window.currentPageUser === 1;
+        document.getElementById("btn-next-page").disabled =
+          window.currentPageUser === maxPage;
+
+        if (pageData.length === 0) {
+          tbody.innerHTML = `<tr><td colspan="5" class="p-4 text-center text-slate-400">Staf tidak ditemukan</td></tr>`;
+          return;
+        }
+
+        pageData.forEach((u) => {
+          const matchDesa = window.desasList.find((d) => d.id === u.desaId);
+          const nDesa = matchDesa
+            ? matchDesa.namaDesa || matchDesa.nama
+            : "Kecamatan/Luar";
+          tbody.innerHTML += `
+          <tr class="border-b border-slate-100">
+            <td class="p-4 font-bold text-slate-900">${u.nama || u.namaLengkap || "-"}</td>
+            <td class="p-4 font-mono text-slate-500">${u.username || "-"}</td>
+            <td class="p-4 capitalize text-blue-600 text-theme-color">${u.jabatan || "-"}</td>
+            <td class="p-4 text-slate-600">${nDesa}</td>
+            <td class="p-4 text-right space-x-1">
+              <button onclick="openAkunModal('${u.id}')" class="px-2 py-1 bg-slate-100 rounded text-[10px] font-bold cursor-pointer hover:bg-slate-200">Edit</button>
+              <button onclick="window.deleteUserFirebase('${u.id}')" class="px-2 py-1 bg-red-50 text-red-600 rounded text-[10px] font-bold cursor-pointer hover:bg-red-100">Hapus</button>
+            </td>
+          </tr>`;
+        });
+        const activeAdminTheme = document.getElementById("set-theme-hex").value;
+        if (activeAdminTheme) window.applyPanelThemeColor(activeAdminTheme);
+        if (typeof lucide !== "undefined") lucide.createIcons();
+      };
+
+      // Search and Filter Logic for Log Table
+      window.handleLogSearch = function () {
+        const q = document
+          .getElementById("search-log-input")
+          .value.toLowerCase()
+          .trim();
+        const filterDesa = document.getElementById("filter-log-desa").value;
+
+        window.logListFiltered = window.logListRaw.filter((log) => {
+          const matchQuery =
+            (log.namaStaff && log.namaStaff.toLowerCase().includes(q)) ||
+            (log.nama && log.nama.toLowerCase().includes(q)) ||
+            (log.namaLengkap && log.namaLengkap.toLowerCase().includes(q));
+          const matchDesa = filterDesa === "all" || log.desaId === filterDesa;
+          return matchQuery && matchDesa;
+        });
+        window.currentPageLog = 1;
+        window.renderLogTable();
+      };
+
+      window.changeLogPage = function (dir) {
+        window.currentPageLog += dir;
+        window.renderLogTable();
+      };
+
+      window.renderLogTable = function () {
+        const tbody = document.getElementById("table-log-body");
+        if (!tbody) return;
+        tbody.innerHTML = "";
+
+        const total = window.logListFiltered.length;
+        const maxPage = Math.ceil(total / window.itemsPerPageLog) || 1;
+
+        if (window.currentPageLog < 1) window.currentPageLog = 1;
+        if (window.currentPageLog > maxPage) window.currentPageLog = maxPage;
+
+        const start = (window.currentPageLog - 1) * window.itemsPerPageLog;
+        const end = Math.min(start + window.itemsPerPageLog, total);
+        const pageData = window.logListFiltered.slice(start, end);
+
+        document.getElementById("log-pagination-info").innerText =
+          `Menampilkan ${total > 0 ? start + 1 : 0}-${end} dari ${total} data`;
+        document.getElementById("btn-prev-log").disabled =
+          window.currentPageLog === 1;
+        document.getElementById("btn-next-log").disabled =
+          window.currentPageLog === maxPage;
+
+        if (pageData.length === 0) {
+          tbody.innerHTML = `<tr><td colspan="5" class="p-4 text-center text-slate-400">Belum ada riwayat masuk hari ini.</td></tr>`;
+          return;
+        }
+
+        pageData.forEach((log) => {
+          const imgUrl = log.fotoUrl || log.avatar || log.foto || "";
+          const elAvatar = imgUrl
+            ? `<img src="${imgUrl}" class="w-8 h-8 rounded-full object-cover border border-slate-200">`
+            : `<div class="w-8 h-8 rounded-full bg-slate-200 flex items-center justify-center text-[10px] font-bold text-slate-500">N/A</div>`;
+
+          tbody.innerHTML += `
+          <tr class="border-b border-slate-100">
+            <td class="p-4">${elAvatar}</td>
+            <td class="p-4 font-bold text-slate-900">${log.namaStaff || log.nama || log.namaLengkap || "-"}</td>
+            <td class="p-4 font-mono text-slate-500">${log.waktu || log.tanggal || "-"}</td>
+            <td class="p-4"><span class="px-2 py-0.5 bg-emerald-100 text-emerald-800 rounded font-bold text-[10px]">${log.status || "HADIR"}</span></td>
+            <td class="p-4 text-right">
+              <button onclick="viewDetailLog('${log.id}')" class="px-2 py-1 bg-blue-50 text-blue-600 rounded text-[10px] font-bold cursor-pointer hover:bg-blue-100">Detail</button>
+            </td>
+          </tr>`;
+        });
+      };
+
+      // Color Input binding helper
+      document.addEventListener("DOMContentLoaded", () => {
+        const colorInput = document.getElementById("set-theme-color");
+        const hexInput = document.getElementById("set-theme-hex");
+        if (colorInput && hexInput) {
+          colorInput.addEventListener("input", (e) => {
+            hexInput.value = e.target.value.toUpperCase();
+          });
+          hexInput.addEventListener("input", (e) => {
+            if (e.target.value.startsWith("#") && e.target.value.length === 7)
+              colorInput.value = e.target.value;
+          });
+        }
+      });
+    </script>
+
+    <!-- ==================== CORE FIREBASE MODULE CONTEXT ==================== -->
+    <script type="module">
+      import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+      import {
+        getFirestore,
+        collection,
+        addDoc,
+        getDocs,
+        doc,
+        setDoc,
+        deleteDoc,
+      } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+
+      const firebaseConfig = {
+        apiKey: "AIzaSyBHiKfeOS7Oz25OQX37wlFkZCTztyPQG-M",
+        authDomain: "sepeda-bambang.firebaseapp.com",
+        projectId: "sepeda-bambang",
+      };
+
+      const app = initializeApp(firebaseConfig);
+      const db = getFirestore(app);
+
+      // --- MANAJEMEN DATA AKUN KARYAWAN ---
+      document.getElementById("btn-save-user").onclick = async () => {
+        const id = document.getElementById("user-edit-id").value;
+        const nama = document.getElementById("user-nama").value.trim();
+        const username = document.getElementById("user-username").value.trim();
+        const password = document.getElementById("user-password").value;
+        const jabatan = document.getElementById("user-jabatan").value.trim();
+        const role = document.getElementById("user-role").value;
+        const desaId = document.getElementById("user-desa-id").value;
+
+        if (!nama || !username || !password)
+          return alert("Mohon lengkapi form!");
+        const payload = {
+          nama,
+          namaLengkap: nama,
+          username,
+          password,
+          jabatan,
+          role,
+          desaId,
+        };
+
+        try {
+          if (id) {
+            await setDoc(doc(db, "users", id), payload, { merge: true });
+          } else {
+            await addDoc(collection(db, "users"), payload);
+          }
+          window.closeAkunModal();
+          await loadAkunPengguna();
+        } catch (e) {
+          console.error(e);
+        }
+      };
+
+      window.deleteUserFirebase = async (id) => {
+        if (confirm("Hapus pengguna ini secara permanen?")) {
+          try {
+            await deleteDoc(doc(db, "users", id));
+            await loadAkunPengguna();
+          } catch (e) {
+            console.error(e);
+          }
+        }
+      };
+
+      // --- MANAJEMEN WILAYAH GEOFENCE ---
+      document.getElementById("btn-save-wilayah").onclick = async () => {
+        const id = document.getElementById("wilayah-edit-id").value;
+        const namaDesa = document.getElementById("wil-nama").value.trim();
+        const latitude = document.getElementById("wil-lat").value.trim();
+        const longitude = document.getElementById("wil-lng").value.trim();
+        const radius = document.getElementById("wil-radius").value;
+
+        if (!namaDesa || !latitude || !longitude || !radius)
+          return alert("Isi form dengan lengkap!");
+
+        // Force write to both lowercase options so there is no mismatch mapping issue in db
+        const payload = {
+          namaDesa,
+          nama: namaDesa,
+          latitude: parseFloat(latitude),
+          lat: parseFloat(latitude),
+          longitude: parseFloat(longitude),
+          lng: parseFloat(longitude),
+          radius: parseInt(radius),
+        };
+
+        try {
+          if (id) {
+            await setDoc(doc(db, "desas", id), payload, { merge: true });
+          } else {
+            await addDoc(collection(db, "desas"), payload);
+          }
+          window.closeWilayahModal();
+          await loadWilayah();
+        } catch (e) {
+          console.error(e);
+        }
+      };
+
+      window.deleteWilayahFirebase = async (id) => {
+        if (confirm("Hapus wilayah ini secara permanen?")) {
+          try {
+            await deleteDoc(doc(db, "desas", id));
+            await loadWilayah();
+          } catch (e) {
+            console.error(e);
+          }
+        }
+      };
+
+      // --- PENGATURAN APLIKASI USER ---
+      document.getElementById("btn-save-settings").onclick = async () => {
+        const jamMasuk = document.getElementById("set-jam-masuk").value;
+        const jamKeluar = document.getElementById("set-jam-keluar").value;
+        const statusApp = document.getElementById("set-app-status").value;
+        const themeColor = document
+          .getElementById("set-theme-hex")
+          .value.trim();
+        const logoUrl = document.getElementById("set-logo-url").value.trim();
+
+        try {
+          await setDoc(
+            doc(db, "app_settings", "global_config"),
+            { jamMasuk, jamKeluar, statusApp, themeColor, logoUrl },
+            { merge: true },
+          );
+          if (themeColor) window.applyPanelThemeColor(themeColor);
+          if (logoUrl) {
+            const lcon = document.getElementById("app-logo-container");
+            if (lcon)
+              lcon.innerHTML = `<img src="${logoUrl}" class="w-full h-full rounded-xl object-contain">`;
+          }
+          alert("Konfigurasi visual & parameter aplikasi berhasil disimpan!");
+        } catch (e) {
+          console.error(e);
+        }
+      };
+
+      async function loadSettings() {
+        try {
+          const snap = await getDocs(collection(db, "app_settings"));
+          snap.forEach((d) => {
+            if (d.id === "global_config") {
+              const data = d.data();
+              if (data.jamMasuk)
+                document.getElementById("set-jam-masuk").value = data.jamMasuk;
+              if (data.jamKeluar)
+                document.getElementById("set-jam-keluar").value =
+                  data.jamKeluar;
+              if (data.statusApp)
+                document.getElementById("set-app-status").value =
+                  data.statusApp;
+              if (data.themeColor) {
+                document.getElementById("set-theme-hex").value =
+                  data.themeColor.toUpperCase();
+                document.getElementById("set-theme-color").value =
+                  data.themeColor;
+                window.applyPanelThemeColor(data.themeColor);
+              }
+              if (data.logoUrl) {
+                document.getElementById("set-logo-url").value = data.logoUrl;
+                const lcon = document.getElementById("app-logo-container");
+                if (lcon)
+                  lcon.innerHTML = `<img src="${data.logoUrl}" class="w-full h-full rounded-xl object-contain">`;
+              }
+            }
+          });
+        } catch (e) {
+          console.error(e);
+        }
+      }
+
+      // --- BROADCAST CRUD MANAGEMENT ---
+      document.getElementById("btn-save-bc").onclick = async () => {
+        const id = document.getElementById("bc-edit-id").value;
+        const scopeDesaId = document.getElementById("bc-target-desa").value;
+        const title = document.getElementById("bc-title").value.trim();
+        const body = document.getElementById("bc-body").value.trim();
+        if (!title || !body) return alert("Pesan tidak boleh kosong!");
+
+        const payload = {
+          title,
+          body,
+          pesan: body,
+          message: body,
+          scopeDesaId,
+          date: new Date().toLocaleString("id-ID"),
+        };
+        try {
+          if (id) {
+            await setDoc(doc(db, "broadcasts", id), payload, { merge: true });
+          } else {
+            await addDoc(collection(db, "broadcasts"), payload);
+          }
+          window.closeBroadcastModal();
+          await loadBroadcasts();
+        } catch (e) {
+          console.error(e);
+        }
+      };
+
+      window.deleteBroadcastFirebase = async (id) => {
+        if (confirm("Hapus pesan broadcast ini?")) {
+          try {
+            await deleteDoc(doc(db, "broadcasts", id));
+            await loadBroadcasts();
+          } catch (e) {
+            console.error(e);
+          }
+        }
+      };
+
+      // --- LOAD DATA METHODS ---
+      async function loadAkunPengguna() {
+        const snap = await getDocs(collection(db, "users"));
+        window.userListRaw = [];
+        snap.forEach((d) => {
+          const item = { id: d.id, ...d.data() };
+          if (
+            window.isKecamatanRole(CURRENT_ADMIN.role) ||
+            item.desaId === CURRENT_ADMIN.desaId
+          ) {
+            window.userListRaw.push(item);
+          }
+        });
+        window.userListFiltered = [...window.userListRaw];
+        document.getElementById("dash-total-staff").innerText =
+          window.userListRaw.length;
+        window.renderUserTable();
+      }
+
+      async function loadBroadcasts() {
+        const snap = await getDocs(collection(db, "broadcasts"));
+        const tbody = document.getElementById("table-broadcast-body");
+        if (!tbody) return;
+        tbody.innerHTML = "";
+        window.broadcastListRaw = [];
+
+        snap.forEach((d) => {
+          const item = { id: d.id, ...d.data() };
+          window.broadcastListRaw.push(item);
+
+          if (
+            window.isKecamatanRole(CURRENT_ADMIN.role) ||
+            item.scopeDesaId === CURRENT_ADMIN.desaId ||
+            item.scopeDesaId === "all"
+          ) {
+            const matchDesa = window.desasList.find(
+              (x) => x.id === item.scopeDesaId,
+            );
+            const dest =
+              item.scopeDesaId === "all"
+                ? "Semua Wilayah"
+                : matchDesa
+                  ? matchDesa.namaDesa || matchDesa.nama
+                  : "Lokal";
+            const msgBody = item.body || item.pesan || item.message || "-";
+
+            tbody.innerHTML += `
+            <tr class="border-b border-slate-100">
+              <td class="p-4 text-slate-400 font-mono">${item.date || "-"}</td>
+              <td class="p-4 font-bold text-slate-900">${item.title}</td>
+              <td class="p-4 text-slate-600">${msgBody}</td>
+              <td class="p-4"><span class="px-2 py-0.5 bg-blue-100 text-blue-700 font-bold rounded text-[10px]">${dest}</span></td>
+              <td class="p-4 text-right space-x-1">
+                <button onclick="openBroadcastModal('${item.id}')" class="px-2 py-1 bg-slate-100 rounded text-[10px] font-bold hover:bg-slate-200 cursor-pointer text-slate-700">Edit</button>
+                <button onclick="window.deleteBroadcastFirebase('${item.id}')" class="px-2 py-1 bg-red-50 text-red-600 rounded text-[10px] font-bold hover:bg-red-100 cursor-pointer">Hapus</button>
+              </td>
+            </tr>`;
+          }
+        });
+      }
+
+      async function loadWilayah() {
+        const snap = await getDocs(collection(db, "desas"));
+        const grid = document.getElementById("grid-wilayah-container");
+        const select = document.getElementById("user-desa-id");
+        const filterSelect = document.getElementById("filter-desa-input");
+        const filterLogSelect = document.getElementById("filter-log-desa");
+
+        if (grid) grid.innerHTML = "";
+        if (select) select.innerHTML = "";
+        if (filterSelect)
+          filterSelect.innerHTML = `<option value="all">Semua Wilayah</option>`;
+        if (filterLogSelect)
+          filterLogSelect.innerHTML = `<option value="all">Semua Wilayah</option>`;
+        window.desasList = [];
+
+        snap.forEach((d) => {
+          const item = { id: d.id, ...d.data() };
+          window.desasList.push(item);
+
+          // Fallback for fields mapping check
+          const currentLat =
+            item.latitude !== undefined
+              ? item.latitude
+              : item.lat !== undefined
+                ? item.lat
+                : 0;
+          const currentLng =
+            item.longitude !== undefined
+              ? item.longitude
+              : item.lon !== undefined
+                ? item.lon
+                : 0;
+          const currentNama = item.namaDesa || item.nama || "Tanpa Nama";
+
+          if (
+            window.isKecamatanRole(CURRENT_ADMIN.role) ||
+            item.id === CURRENT_ADMIN.desaId
+          ) {
+            if (grid) {
+              grid.innerHTML += `
+              <div class="bg-white p-4 rounded-xl border border-slate-200 shadow-xs flex flex-col justify-between">
+                <div>
+                  <h5 class="text-xs font-black text-slate-900 flex items-center gap-1"><i data-lucide="map-pin" class="w-3.5 h-3.5 text-blue-600 text-theme-color"></i> ${currentNama}</h5>
+                  <p class="text-[10px] text-slate-500 mt-2 font-mono">Lat: ${currentLat}</p>
+                  <p class="text-[10px] text-slate-500 font-mono">Lng: ${currentLng}</p>
+                  <p class="text-[10px] text-slate-600 font-bold mt-1">Radius: ${item.radius || 0} meter</p>
+                </div>
+                <div class="mt-3 flex gap-1 border-t border-slate-100 pt-2 justify-end">
+                  <button onclick="openWilayahModal('${item.id}')" class="px-2 py-1 bg-slate-100 rounded text-[10px] font-bold cursor-pointer hover:bg-slate-200 text-slate-700">Edit</button>
+                  <button onclick="window.deleteWilayahFirebase('${item.id}')" class="px-2 py-1 bg-red-50 text-red-600 rounded text-[10px] font-bold cursor-pointer hover:bg-red-100">Hapus</button>
+                </div>
+              </div>`;
+            }
+            if (select)
+              select.innerHTML += `<option value="${item.id}">${currentNama}</option>`;
+            if (filterSelect)
+              filterSelect.innerHTML += `<option value="${item.id}">${currentNama}</option>`;
+            if (filterLogSelect)
+              filterLogSelect.innerHTML += `<option value="${item.id}">${currentNama}</option>`;
+          }
+        });
+
+        document.getElementById("dash-total-wilayah").innerText =
+          window.desasList.length;
+        const matchDesa = window.desasList.find(
+          (x) => x.id === CURRENT_ADMIN.desaId,
+        );
+        const headerScope =
+          window.isKecamatanRole(CURRENT_ADMIN.role)
+            ? "KECAMATAN GLOBAL"
+            : (matchDesa ? matchDesa.namaDesa || matchDesa.nama : null) ||
+              "DESA TERKUNCI";
+        document.getElementById("admin-scope-display").innerText =
+          headerScope.toUpperCase();
+        document.getElementById("admin-role-display").innerText =
+          (
+            window.ADMIN_ROLE_LABELS[CURRENT_ADMIN.role] || "Admin Desa"
+          ).toUpperCase();
+        if (typeof lucide !== "undefined") lucide.createIcons();
+      }
+
+      async function loadLogAbsensi() {
+        const snap = await getDocs(collection(db, "absensi"));
+        window.logListRaw = [];
+
+        let totalHadir = 0;
+        const hariIni = new Date().toLocaleDateString("id-ID");
+
+        snap.forEach((d) => {
+          const item = { id: d.id, ...d.data() };
+          if (
+            window.isKecamatanRole(CURRENT_ADMIN.role) ||
+            item.desaId === CURRENT_ADMIN.desaId
+          ) {
+            if (item.tanggal === hariIni) totalHadir++;
+            window.logListRaw.push(item);
+          }
+        });
+
+        window.logListFiltered = [...window.logListRaw];
+        document.getElementById("dash-total-absen").innerText = totalHadir;
+        window.renderLogTable();
+      }
+
+      // --- INITIALIZATION ---
+      async function initSystem() {
+        try {
+          await loadWilayah();
+          await loadAkunPengguna();
+          await loadBroadcasts();
+          await loadLogAbsensi();
+          await loadSettings();
+        } catch (err) {
+          console.error(err);
+        }
+      }
+
+      window.deleteUserFirebase = deleteUserFirebase;
+      window.deleteWilayahFirebase = deleteWilayahFirebase;
+      window.deleteBroadcastFirebase = deleteBroadcastFirebase;
+      initSystem();
+    </script>
+  </body>
+</html>

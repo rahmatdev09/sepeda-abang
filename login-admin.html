@@ -1,0 +1,145 @@
+<!doctype html>
+<html lang="id">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>LOGIN ADMIN SYSTEM</title>
+    <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+  </head>
+  <body
+    class="bg-slate-900 flex items-center justify-center min-h-screen p-4 font-sans antialiased text-slate-800"
+  >
+    <div
+      class="bg-white p-8 rounded-3xl max-w-sm w-full shadow-2xl border border-slate-100"
+    >
+      <div class="text-center mb-6">
+        <div
+          class="w-12 h-12 bg-blue-600 text-white rounded-2xl flex items-center justify-center mx-auto mb-3 shadow-md"
+        >
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            fill="none"
+            viewBox="0 0 24 24"
+            stroke-width="2.5"
+            stroke="currentColor"
+            class="w-5 h-5"
+          >
+            <path
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              d="M9 12.75L11.25 15 15 9.75m-3-7.036A11.959 11.959 0 013.598 6 11.99 11.99 0 003 9.749c0 5.592 3.824 10.29 9 11.623 5.176-1.332 9-6.03 9-11.622 0-1.31-.21-2.57-.598-3.751h-.152c-3.196 0-6.1-1.248-8.25-3.285z"
+            />
+          </svg>
+        </div>
+        <h3 class="text-base font-black text-slate-900 tracking-tight">
+          ADMIN HQ PANEL
+        </h3>
+        <p class="text-xs text-slate-400 font-medium mt-0.5">
+          Otoritas verifikasi masuk sistem kendali presensi.
+        </p>
+      </div>
+
+      <div class="space-y-4">
+        <div>
+          <label
+            class="block text-[10px] font-bold text-slate-400 mb-1 uppercase tracking-wider"
+            >Username Otoritas</label
+          >
+          <input
+            type="text"
+            id="adm-user"
+            placeholder="Ketik id admin..."
+            class="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl text-xs font-bold focus:outline-hidden focus:border-blue-600"
+          />
+        </div>
+        <div>
+          <label
+            class="block text-[10px] font-bold text-slate-400 mb-1 uppercase tracking-wider"
+            >Password PIN</label
+          >
+          <input
+            type="password"
+            id="adm-pass"
+            placeholder="••••••••"
+            class="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl text-xs font-bold focus:outline-hidden focus:border-blue-600"
+          />
+        </div>
+        <button
+          id="btn-login-admin"
+          onclick="authAdminLogin()"
+          class="w-full bg-blue-600 hover:bg-blue-700 text-white font-black text-xs py-3.5 rounded-xl transition cursor-pointer shadow-md flex justify-center items-center gap-2"
+        >
+          Masuk System
+        </button>
+      </div>
+      <div
+        id="login-err-msg"
+        class="text-center text-red-600 font-bold text-[11px] mt-4 hidden"
+      >
+        Kredensial salah / Anda tidak memiliki akses admin!
+      </div>
+    </div>
+
+    <script type="module">
+      import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+      import {
+        getFirestore,
+        collection,
+        getDocs,
+      } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+
+      const firebaseConfig = {
+        apiKey: "AIzaSyBHiKfeOS7Oz25OQX37wlFkZCTztyPQG-M",
+        authDomain: "sepeda-bambang.firebaseapp.com",
+        projectId: "sepeda-bambang",
+      };
+
+      const app = initializeApp(firebaseConfig);
+      const db = getFirestore(app);
+
+      window.authAdminLogin = async () => {
+        const u = document.getElementById("adm-user").value.trim();
+        const p = document.getElementById("adm-pass").value;
+        const btn = document.getElementById("btn-login-admin");
+
+        if (!u || !p) return;
+
+        btn.disabled = true;
+        btn.innerText = "Memverifikasi...";
+
+        try {
+          const snap = await getDocs(collection(db, "users"));
+          let found = false;
+
+          snap.forEach((d) => {
+            const ud = d.data();
+            // Cek username, password, dan pastikan dia memegang hak akses role admin
+            if (
+              ud.username === u &&
+              ud.password === p &&
+              (ud.role === "admin_kecamatan" || ud.role === "admin_desa")
+            ) {
+              found = true;
+              localStorage.setItem(
+                "active_admin",
+                JSON.stringify({ id: d.id, ...ud }),
+              );
+              location.href = "admin.html";
+            }
+          });
+
+          if (!found) {
+            const err = document.getElementById("login-err-msg");
+            err.classList.remove("hidden");
+            setTimeout(() => err.classList.add("hidden"), 3000);
+          }
+        } catch (e) {
+          console.error(e);
+        } finally {
+          btn.disabled = false;
+          btn.innerText = "Masuk System";
+        }
+      };
+    </script>
+  </body>
+</html>
