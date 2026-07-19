@@ -1,5 +1,5 @@
 html {
-  width: 100%;
+  width: auto;
   height: 100%;
   overflow-x: hidden;
   overscroll-behavior-x: none;
@@ -25,8 +25,7 @@ html {
 body {
   -webkit-tap-highlight-color: transparent;
   overscroll-behavior-y: none;
-  padding: env(safe-area-inset-top) env(safe-area-inset-right)
-    env(safe-area-inset-bottom) env(safe-area-inset-left);
+  padding: 0;
 }
 
 button,
@@ -47,7 +46,9 @@ input {
     radial-gradient(circle at 86% 18%, rgb(239 68 68 / 0.34), transparent 26%),
     linear-gradient(155deg, #0f2f6f 0%, #1d4ed8 42%, #06122b 100%);
   color: white;
-  transition: opacity 0.35s ease, visibility 0.35s ease;
+  transition:
+    opacity 0.35s ease,
+    visibility 0.35s ease;
 }
 
 .native-splash.hidden-splash {
@@ -112,30 +113,64 @@ input {
   width: 100%;
   min-height: 100dvh;
   margin: 0 auto;
-  background:
-    linear-gradient(180deg, #eff6ff 0, #f8fafc 170px),
-    #f8fafc;
+  background: linear-gradient(180deg, #eff6ff 0, #f8fafc 170px), #f8fafc;
   overflow: hidden;
   display: flex;
   flex-direction: column;
   padding-bottom: 96px;
 }
 
-@media (min-width: 520px) {
-  body {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    padding: 16px;
-  }
+.pull-refresh-indicator {
+  position: fixed;
+  top: 14px;
+  left: 50%;
+  z-index: 80;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 12px;
+  border: 1px solid #e2e8f0;
+  border-radius: 999px;
+  background: #ffffff;
+  color: #64748b;
+  font-size: 10px;
+  font-weight: 800;
+  box-shadow: 0 8px 20px rgb(15 23 42 / 0.12);
+  transform: translate(-50%, -52px);
+  transition: transform 220ms ease, color 220ms ease;
+}
 
-  .app-shell {
-    max-width: 430px;
-    min-height: min(860px, calc(100dvh - 32px));
-    border-radius: 36px;
-    border: 1px solid rgb(226 232 240 / 0.4);
-    box-shadow: 0 28px 80px rgb(0 0 0 / 0.38);
-  }
+.pull-refresh-indicator svg {
+  width: 14px;
+  height: 14px;
+}
+
+.pull-refresh-indicator.ready,
+.pull-refresh-indicator.refreshing {
+  color: #1d4ed8;
+}
+
+.pull-refresh-indicator.refreshing svg {
+  animation: refresh-spin 700ms linear infinite;
+}
+
+@keyframes refresh-spin {
+  to { transform: rotate(360deg); }
+}
+
+button,
+.card,
+.today-card,
+.info-card,
+.metric-card,
+.count-card,
+.nav-btn {
+  transition: transform 180ms ease, box-shadow 180ms ease, background-color 180ms ease;
+}
+
+button:active,
+.nav-btn:active {
+  transform: scale(0.97);
 }
 
 #loading-overlay,
@@ -315,11 +350,47 @@ input {
   margin-top: 8px;
   padding: 16px;
   border-radius: 20px;
-  background: linear-gradient(135deg, #ef4444, #dc2626 45%, #b91c1c);
+  background: #dc2626;
   color: white;
   font-size: 12.5px;
   font-weight: 950;
   box-shadow: 0 18px 40px rgb(220 38 38 / 0.34);
+}
+
+/* Clean, flat visual theme */
+.native-splash,
+.login-screen {
+  background: #0f172a;
+}
+
+.app-shell {
+  background: #f8fafc;
+}
+
+.app-header {
+  background: #1d4ed8;
+  box-shadow: 0 10px 30px rgb(15 23 42 / 0.14);
+}
+
+.app-header::after {
+  background: rgb(255 255 255 / 0.22);
+}
+
+.login-form button,
+#today-step-badge,
+#profil-avatar,
+.btn-theme,
+.btn-theme-bg {
+  background: #1d4ed8 !important;
+}
+
+.section-card,
+.status-card,
+.summary-card,
+.info-card,
+.network-card,
+.stat-card {
+  box-shadow: 0 8px 24px rgb(15 23 42 / 0.06);
 }
 
 .login-footer {
@@ -345,6 +416,32 @@ input {
   overflow: hidden;
 }
 
+.app-header {
+  padding: 20px 22px 24px;
+  border-radius: 0 0 24px 24px;
+  background: #ffffff;
+  color: #0f172a;
+  border-bottom: 1px solid #e2e8f0;
+  box-shadow: none;
+}
+
+.app-header span {
+  color: #64748b;
+  font-size: 8px;
+}
+
+.app-header h3 {
+  color: #0f172a;
+  font-size: 16px;
+}
+
+.app-header button {
+  background: #f1f5f9;
+  border: 1px solid #e2e8f0;
+  color: #475569;
+  box-shadow: none;
+}
+
 .app-header::after {
   content: "";
   position: absolute;
@@ -352,7 +449,12 @@ input {
   right: 18px;
   bottom: 12px;
   height: 1px;
-  background: linear-gradient(90deg, transparent, rgb(255 255 255 / 0.34), transparent);
+  background: linear-gradient(
+    90deg,
+    transparent,
+    rgb(255 255 255 / 0.34),
+    transparent
+  );
 }
 
 .app-header span {
@@ -427,7 +529,7 @@ input {
 }
 
 .today-card {
-  margin-top: -36px;
+  margin-top: 3px;
   margin-bottom: 14px;
   border-radius: 28px;
   padding: 18px;
@@ -477,7 +579,7 @@ input {
   display: flex;
   align-items: center;
   justify-content: center;
-  background: linear-gradient(135deg, #ef4444, #1d4ed8);
+  background: #1d4ed8;
   color: white;
   font-size: 14px;
   font-weight: 950;
@@ -524,8 +626,7 @@ input {
 .count-card {
   border-radius: 22px;
   padding: 17px;
-  background:
-    linear-gradient(180deg, #fff, #f8fafc);
+  background: #ffffff;
   text-align: center;
 }
 
@@ -636,7 +737,7 @@ input {
 }
 
 .btn-camera {
-  background: linear-gradient(135deg, #0f172a, #1e3a8a);
+  background: #1e3a8a;
   color: white;
   box-shadow: 0 12px 28px rgb(15 23 42 / 0.18);
 }
@@ -650,6 +751,188 @@ input {
 .btn-retake svg {
   width: 16px;
   height: 16px;
+}
+
+.attendance-mode {
+  position: relative;
+  inset: auto;
+  min-height: 100dvh;
+  height: auto;
+  padding: 0;
+  background: #020617;
+  overflow-y: auto;
+  overscroll-behavior-y: auto;
+  touch-action: pan-y;
+}
+
+.attendance-mode > .app-header,
+.attendance-mode > .app-content > #tab-dashboard,
+.attendance-mode > .bottom-nav {
+  display: none;
+}
+
+.attendance-mode .app-content {
+  height: auto;
+  min-height: 100dvh;
+  padding: 0;
+  overflow-y: auto;
+}
+
+.attendance-mode #tab-absen-sheet {
+  position: relative;
+  display: block;
+  min-height: 100dvh;
+  height: auto;
+  padding: 0;
+  background: #020617;
+}
+
+.attendance-mode .section-title {
+  position: absolute;
+  inset: 0 0 auto;
+  z-index: 5;
+  padding: 22px 18px;
+  color: white;
+  background: rgb(2 6 23 / 0.58);
+}
+
+.attendance-mode .section-title h3 {
+  color: white;
+  font-size: 15px;
+}
+
+.attendance-mode .section-title button {
+  width: 42px;
+  height: 42px;
+  color: white;
+  background: rgb(255 255 255 / 0.16);
+  border: 1px solid rgb(255 255 255 / 0.22);
+}
+
+.attendance-mode .attendance-map-card {
+  position: absolute;
+  top: auto;
+  left: 18px;
+  right: 18px;
+  bottom: 104px;
+  z-index: 4;
+  display: block;
+  padding: 14px;
+  margin: 0;
+  border-radius: 20px;
+  background: rgb(255 255 255 / 0.94);
+  box-shadow: 0 12px 30px rgb(0 0 0 / 0.18);
+}
+
+.attendance-mode .attendance-map-card > div:first-child {
+  margin-bottom: 10px;
+}
+
+.attendance-mode .attendance-map-card #user-map {
+  display: none;
+}
+
+.distance-summary {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px;
+  border-radius: 14px;
+  background: #f8fafc;
+  color: #1d4ed8;
+}
+
+.distance-summary svg {
+  width: 20px;
+  height: 20px;
+}
+
+.distance-summary small {
+  display: block;
+  color: #94a3b8;
+  font-size: 8px;
+  font-weight: 900;
+  letter-spacing: 0.08em;
+}
+
+.distance-summary strong {
+  display: block;
+  margin-top: 2px;
+  color: #0f172a;
+  font-size: 12px;
+}
+
+.today-card,
+.info-card,
+.metric-card,
+.count-card {
+  border: 1px solid #e2e8f0;
+  box-shadow: 0 6px 18px rgb(15 23 42 / 0.04);
+}
+
+.today-card {
+  background: #ffffff;
+}
+
+.today-card h2 {
+  color: #0f172a;
+}
+
+.attendance-mode .camera-card {
+  position: absolute;
+  inset: 76px 14px 178px;
+  width: auto;
+  height: auto;
+  min-height: 0;
+  z-index: 1;
+  display: block;
+  padding: 0;
+  margin: 0;
+  border-radius: 28px;
+  background: #020617;
+}
+
+.attendance-mode .camera-preview {
+  width: 100%;
+  height: 100%;
+  min-height: 0;
+  margin: 0;
+  border-radius: 28px;
+  aspect-ratio: auto;
+}
+
+.attendance-mode .face-guide {
+  width: min(66vw, 300px);
+  height: min(82vw, 390px);
+  border: 2px solid rgb(255 255 255 / 0.72);
+  border-radius: 48% 48% 44% 44%;
+}
+
+.attendance-mode .btn-camera,
+.attendance-mode .btn-retake {
+  position: absolute;
+  z-index: 4;
+  left: 50%;
+  bottom: 128px;
+  transform: translateX(-50%);
+  min-width: 190px;
+  justify-content: center;
+  padding: 14px 20px;
+  background: white;
+  color: #1d4ed8;
+  box-shadow: 0 12px 32px rgb(0 0 0 / 0.3);
+}
+
+.attendance-mode .swipe-container {
+  position: absolute;
+  left: 18px;
+  right: 18px;
+  bottom: 22px;
+  z-index: 5;
+  border-radius: 22px;
+  background: rgb(255 255 255 / 0.18);
+  border: 1px solid rgb(255 255 255 / 0.25);
+  backdrop-filter: blur(12px);
 }
 
 .swipe-container {
@@ -685,11 +968,13 @@ input {
   display: flex;
   align-items: center;
   justify-content: center;
-  background: linear-gradient(135deg, #ef4444, #1d4ed8);
+  background: #1d4ed8;
   color: white;
   box-shadow: 0 12px 26px rgb(37 99 235 / 0.34);
   cursor: grab;
-  transition: background-color 0.2s, left 0.2s ease-out;
+  transition:
+    background-color 0.2s,
+    left 0.2s ease-out;
 }
 
 .swipe-handle svg {
@@ -702,7 +987,7 @@ input {
   inset: 0 auto 0 0;
   z-index: 5;
   width: 0;
-  background: linear-gradient(90deg, rgb(239 68 68 / 0.16), rgb(37 99 235 / 0.16));
+  background: #eff6ff;
 }
 
 .swipe-container.disabled {
@@ -735,7 +1020,7 @@ input {
   justify-content: center;
   align-self: center;
   margin-bottom: 4px;
-  background: linear-gradient(135deg, #ef4444, #1d4ed8);
+  background: #1d4ed8;
   color: white;
   font-size: 30px;
   font-weight: 950;
@@ -793,7 +1078,9 @@ input {
   gap: 4px;
   font-size: 9px;
   font-weight: 950;
-  transition: transform 0.15s ease, color 0.15s ease;
+  transition:
+    transform 0.15s ease,
+    color 0.15s ease;
 }
 
 .nav-btn svg {
