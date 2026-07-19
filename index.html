@@ -37,10 +37,13 @@
         <img src="assets/icons/icon-512.png" alt="" />
       </div>
       <h1>SEPEDA ABANG</h1>
-      <p>Sistem Absensi Digital Perangkat Desa Gelumbang</p>
+      <p>ABSENSI DIGITAL</p>
     </div>
 
     <main class="app-shell">
+      <div id="pull-refresh-indicator" class="pull-refresh-indicator">
+        <i data-lucide="refresh-cw"></i><span>Tarik untuk menyegarkan</span>
+      </div>
       <div id="loading-overlay" class="hidden">
         <div class="loading-spinner"></div>
         <p>Memproses Kehadiran...</p>
@@ -177,10 +180,19 @@
             <h3 id="absen-form-title">Formulir Validasi Kehadiran</h3>
           </div>
 
-          <div class="map-card">
+          <div class="map-card attendance-map-card">
             <div class="flex justify-between items-center mb-2 px-1">
-              <span>Radar Jangkauan Jarak</span>
+              <span>Jarak ke Kantor</span>
               <b id="distance-badge">Mendeteksi Jarak...</b>
+            </div>
+            <div class="distance-summary">
+              <i data-lucide="map-pin"></i>
+              <div>
+                <small>STATUS LOKASI</small>
+                <strong id="attendance-distance-label"
+                  >Menentukan lokasi...</strong
+                >
+              </div>
             </div>
             <div id="user-map"></div>
           </div>
