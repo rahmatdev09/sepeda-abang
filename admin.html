@@ -2,8 +2,8 @@
 <html lang="id">
   <head>
     <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>PANEL KONTROL ADMIN SEPEDA ABANG</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover" />
+    <title>PANEL KONTROL ADMIN - RESTORED FULL</title>
     <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
     <script src="https://unpkg.com/lucide@latest"></script>
     <style>
@@ -15,6 +15,7 @@
         color: #1d4ed8;
         border-left: 4px solid #2563eb;
       }
+      .attendance-donut { --donut-value: 0deg; background: conic-gradient(#2563eb var(--donut-value), #e2e8f0 0deg); }
     </style>
   </head>
   <body
@@ -42,7 +43,7 @@
               class="text-sm font-black text-slate-900 tracking-wide"
               id="admin-role-display"
             >
-              ADMIN SEPEDA ABANG
+              HQ ADMIN
             </h2>
             <p
               class="text-[10px] text-slate-500 font-bold uppercase tracking-wider"
@@ -205,6 +206,17 @@
               </div>
             </div>
           </div>
+
+          <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-xs mb-6">
+            <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 mb-5">
+              <div><h3 class="text-sm font-black text-slate-900">Ringkasan Absensi</h3><p class="text-[11px] text-slate-500 mt-1">Karyawan unik yang sudah melakukan absensi.</p></div>
+              <select id="filter-dashboard-desa" onchange="handleDashboardFilter()" class="p-2 bg-slate-50 border border-slate-200 rounded-xl text-xs font-bold text-slate-600 min-w-[170px]"><option value="all">Semua Wilayah</option></select>
+            </div>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div class="border border-slate-100 rounded-2xl p-5 flex items-center gap-5"><div id="donut-month" class="attendance-donut w-28 h-28 rounded-full flex items-center justify-center shrink-0"><div class="w-20 h-20 bg-white rounded-full flex flex-col items-center justify-center"><strong id="donut-month-value" class="text-xl font-black text-slate-900">0</strong><span class="text-[9px] text-slate-400 font-bold">KARYAWAN</span></div></div><div><p class="text-[11px] text-slate-400 font-bold uppercase tracking-wider">Absen Bulan Ini</p><h4 id="donut-month-label" class="text-lg font-black text-slate-900 mt-1">0 dari 0</h4></div></div>
+              <div class="border border-slate-100 rounded-2xl p-5 flex items-center gap-5"><div id="donut-today" class="attendance-donut w-28 h-28 rounded-full flex items-center justify-center shrink-0"><div class="w-20 h-20 bg-white rounded-full flex flex-col items-center justify-center"><strong id="donut-today-value" class="text-xl font-black text-slate-900">0</strong><span class="text-[9px] text-slate-400 font-bold">KARYAWAN</span></div></div><div><p class="text-[11px] text-slate-400 font-bold uppercase tracking-wider">Absen Hari Ini</p><h4 id="donut-today-label" class="text-lg font-black text-slate-900 mt-1">0 dari 0</h4></div></div>
+            </div>
+          </div>
         </div>
 
         <!-- TAB 1: LOG ABSENSI (WITH FILTER, SEARCH & PAGINATION) -->
@@ -246,6 +258,7 @@
                 >
                   <th class="p-4 w-16">Foto</th>
                   <th class="p-4">Nama Staff</th>
+                  <th class="p-4">Wilayah Dinas</th>
                   <th class="p-4">Waktu Presensi</th>
                   <th class="p-4">Status</th>
                   <th class="p-4 text-right">Aksi</th>
@@ -256,7 +269,7 @@
                 class="divide-y divide-slate-100 text-xs text-slate-700"
               >
                 <tr>
-                  <td colspan="5" class="p-4 text-center text-slate-400">
+                  <td colspan="6" class="p-4 text-center text-slate-400">
                     Memuat data log absensi...
                   </td>
                 </tr>
@@ -302,10 +315,18 @@
               <i data-lucide="plus-circle" class="w-4 h-4"></i> Tambah Wilayah
             </button>
           </div>
+          <div class="flex flex-col sm:flex-row gap-2 mb-4">
+            <input id="search-wilayah-input" oninput="handleWilayahSearch()" type="text" placeholder="Cari nama wilayah..." class="flex-1 p-2.5 bg-white border border-slate-200 rounded-xl text-xs shadow-xs" />
+            <select id="wilayah-items-per-page" onchange="handleWilayahItemsPerPage()" class="p-2.5 bg-white border border-slate-200 rounded-xl text-xs font-bold text-slate-600 shadow-xs"><option value="5">5 / halaman</option><option value="10">10 / halaman</option><option value="15">15 / halaman</option></select>
+          </div>
           <div
             class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4"
             id="grid-wilayah-container"
           ></div>
+          <div class="mt-4 p-4 bg-slate-50 border border-slate-200 rounded-xl flex items-center justify-between text-xs">
+            <span id="wilayah-pagination-info" class="text-slate-500 font-medium">Menampilkan 0-0 dari 0 data</span>
+            <div class="flex gap-2"><button id="btn-prev-wilayah" onclick="changeWilayahPage(-1)" class="px-3 py-1.5 bg-white border border-slate-200 text-slate-700 font-bold rounded-lg disabled:opacity-40 cursor-pointer">Prev</button><button id="btn-next-wilayah" onclick="changeWilayahPage(1)" class="px-3 py-1.5 bg-white border border-slate-200 text-slate-700 font-bold rounded-lg disabled:opacity-40 cursor-pointer">Next</button></div>
+          </div>
         </div>
 
         <!-- TAB 4: MANAJEMEN AKUN KARYAWAN -->
@@ -569,6 +590,7 @@
               >-</span
             >
           </p>
+          <div id="det-log-attendance-list" class="space-y-2 border-t border-slate-100 pt-3"></div>
         </div>
         <button
           onclick="
@@ -795,6 +817,15 @@
       </div>
     </div>
 
+    <div id="modal-feedback" class="hidden fixed inset-0 bg-slate-950/50 backdrop-blur-sm z-[70] items-center justify-center p-4">
+      <div class="bg-white w-full max-w-sm rounded-3xl p-6 shadow-2xl text-center">
+        <div id="feedback-icon" class="mx-auto w-14 h-14 rounded-2xl flex items-center justify-center mb-4"></div>
+        <h3 id="feedback-title" class="text-lg font-black text-slate-900"></h3>
+        <p id="feedback-message" class="text-xs text-slate-500 mt-2"></p>
+        <div id="feedback-actions" class="flex gap-2 mt-6"></div>
+      </div>
+    </div>
+
     <!-- ==================== LOGIKA UTAMA GLOBAL ==================== -->
     <script>
       let CURRENT_ADMIN = JSON.parse(localStorage.getItem("active_admin"));
@@ -824,6 +855,10 @@
       window.logListFiltered = [];
       window.currentPageLog = 1;
       window.itemsPerPageLog = 5;
+      window.dashboardFilterDesa = "all";
+      window.wilayahListFiltered = [];
+      window.currentPageWilayah = 1;
+      window.itemsPerPageWilayah = 5;
 
       // Broadcast raw state
       window.broadcastListRaw = [];
@@ -966,10 +1001,11 @@
       };
 
       window.viewDetailLog = function (id) {
-        const log = window.logListRaw.find((x) => x.id === id);
+        const log = window.logListFiltered.find((x) => x.key === id) || groupAttendanceLogs(window.logListRaw).find((x) => x.key === id);
         if (!log) return;
+        const first = log.entries[0];
 
-        const imgUrl = log.fotoUrl || log.avatar || log.foto || "";
+        const imgUrl = first.fotoUrl || first.avatar || first.foto || "";
         const container = document.getElementById(
           "log-detail-avatar-container",
         );
@@ -978,16 +1014,20 @@
           : `<div class="w-24 h-24 rounded-full bg-slate-200 flex items-center justify-center font-bold text-slate-500">No Photo</div>`;
 
         document.getElementById("det-log-nama").innerText =
-          log.namaStaff || log.nama || log.namaLengkap || "-";
+          first.namaStaff || first.nama || first.namaLengkap || "-";
         document.getElementById("det-log-waktu").innerText =
-          log.waktu || log.tanggal || "-";
+          first.tanggal || "-";
         document.getElementById("det-log-status").innerText =
-          log.status || "HADIR";
+          `${log.entries.length} catatan absensi`;
 
-        const userLat = log.latitude || log.lat || "-";
-        const userLng = log.longitude || log.lon || "-";
+        const userLat = first.latitude || first.lat || "-";
+        const userLng = first.longitude || first.lon || "-";
         document.getElementById("det-log-koordinat").innerText =
           `Lat: ${userLat}, Lng: ${userLng}`;
+        document.getElementById("det-log-attendance-list").innerHTML = ["pergi", "pulang"].map((type) => {
+          const entry = log.entries.find((item) => (item.tipeAbsen || item.jenisAbsen || "pergi").toLowerCase() === type);
+          return `<div class="flex items-center justify-between gap-2 p-3 rounded-xl ${entry ? "bg-emerald-50" : "bg-slate-50"}"><div><strong class="text-[10px] uppercase text-slate-500 block">Absen ${type}</strong><span class="text-xs font-bold text-slate-800">${entry ? (entry.waktu || entry.tanggal || "Tercatat") : "Belum tercatat"}</span></div>${entry ? `<button onclick="deleteLogFirebase('${entry.id}')" class="px-2 py-1 bg-red-50 text-red-600 rounded-lg text-[10px] font-bold">Hapus</button>` : ""}</div>`;
+        }).join("");
 
         document.getElementById("modal-detail-log").classList.remove("hidden");
         if (typeof lucide !== "undefined") lucide.createIcons();
@@ -1067,6 +1107,24 @@
         if (typeof lucide !== "undefined") lucide.createIcons();
       };
 
+      function groupAttendanceLogs(logs) {
+        const groups = new Map();
+        logs.forEach((log) => {
+          const key = `${log.userId || log.namaStaff || log.nama}|${log.dateKey || log.tanggal || "tanpa-tanggal"}`;
+          if (!groups.has(key)) groups.set(key, { key, entries: [] });
+          groups.get(key).entries.push(log);
+        });
+        return Array.from(groups.values());
+      }
+
+      window.deleteLogGroup = async function (key) {
+        const group = window.logListFiltered.find((item) => item.key === key);
+        if (!(await askConfirm("Semua catatan absen pergi dan pulang pada hari ini akan dihapus."))) return;
+        if (group) for (const entry of group.entries) await deleteDoc(doc(db, "absensi", entry.id));
+        await loadLogAbsensi();
+        window.showSuccess("Catatan absensi berhasil dihapus.");
+      };
+
       // Search and Filter Logic for Log Table
       window.handleLogSearch = function () {
         const q = document
@@ -1075,7 +1133,7 @@
           .trim();
         const filterDesa = document.getElementById("filter-log-desa").value;
 
-        window.logListFiltered = window.logListRaw.filter((log) => {
+        const matchingLogs = window.logListRaw.filter((log) => {
           const matchQuery =
             (log.namaStaff && log.namaStaff.toLowerCase().includes(q)) ||
             (log.nama && log.nama.toLowerCase().includes(q)) ||
@@ -1083,6 +1141,7 @@
           const matchDesa = filterDesa === "all" || log.desaId === filterDesa;
           return matchQuery && matchDesa;
         });
+        window.logListFiltered = groupAttendanceLogs(matchingLogs);
         window.currentPageLog = 1;
         window.renderLogTable();
       };
@@ -1115,12 +1174,15 @@
           window.currentPageLog === maxPage;
 
         if (pageData.length === 0) {
-          tbody.innerHTML = `<tr><td colspan="5" class="p-4 text-center text-slate-400">Belum ada riwayat masuk hari ini.</td></tr>`;
+          tbody.innerHTML = `<tr><td colspan="6" class="p-4 text-center text-slate-400">Belum ada riwayat masuk hari ini.</td></tr>`;
           return;
         }
 
         pageData.forEach((log) => {
-          const imgUrl = log.fotoUrl || log.avatar || log.foto || "";
+          const first = log.entries[0];
+          const imgUrl = first.fotoUrl || first.avatar || first.foto || "";
+          const wilayah = window.desasList.find((desa) => desa.id === first.desaId);
+          const namaWilayah = wilayah ? (wilayah.namaDesa || wilayah.nama) : "-";
           const elAvatar = imgUrl
             ? `<img src="${imgUrl}" class="w-8 h-8 rounded-full object-cover border border-slate-200">`
             : `<div class="w-8 h-8 rounded-full bg-slate-200 flex items-center justify-center text-[10px] font-bold text-slate-500">N/A</div>`;
@@ -1128,11 +1190,13 @@
           tbody.innerHTML += `
           <tr class="border-b border-slate-100">
             <td class="p-4">${elAvatar}</td>
-            <td class="p-4 font-bold text-slate-900">${log.namaStaff || log.nama || log.namaLengkap || "-"}</td>
-            <td class="p-4 font-mono text-slate-500">${log.waktu || log.tanggal || "-"}</td>
-            <td class="p-4"><span class="px-2 py-0.5 bg-emerald-100 text-emerald-800 rounded font-bold text-[10px]">${log.status || "HADIR"}</span></td>
+            <td class="p-4 font-bold text-slate-900">${first.namaStaff || first.nama || first.namaLengkap || "-"}</td>
+            <td class="p-4 text-slate-600">${namaWilayah}</td>
+            <td class="p-4 font-mono text-slate-500">${first.tanggal || "-"}</td>
+            <td class="p-4"><span class="px-2 py-0.5 bg-emerald-100 text-emerald-800 rounded font-bold text-[10px]">${log.entries.length === 2 ? "PERGI & PULANG" : (first.tipeAbsen || first.jenisAbsen || "HADIR").toUpperCase()}</span></td>
             <td class="p-4 text-right">
-              <button onclick="viewDetailLog('${log.id}')" class="px-2 py-1 bg-blue-50 text-blue-600 rounded text-[10px] font-bold cursor-pointer hover:bg-blue-100">Detail</button>
+              <button onclick="viewDetailLog('${log.key}')" class="px-2 py-1 bg-blue-50 text-blue-600 rounded text-[10px] font-bold cursor-pointer hover:bg-blue-100">Detail</button>
+              <button onclick="deleteLogGroup('${log.key}')" class="px-2 py-1 bg-red-50 text-red-600 rounded text-[10px] font-bold cursor-pointer hover:bg-red-100">Hapus</button>
             </td>
           </tr>`;
         });
@@ -1176,6 +1240,45 @@
       const app = initializeApp(firebaseConfig);
       const db = getFirestore(app);
 
+      function setButtonLoading(button, loading) {
+        if (!button) return;
+        if (loading) {
+          button.dataset.originalText = button.innerHTML;
+          button.disabled = true;
+          button.classList.add("opacity-70", "cursor-wait");
+          button.innerHTML = '<span class="inline-block w-3 h-3 border-2 border-current border-t-transparent rounded-full animate-spin align-[-1px] mr-1"></span> Memproses...';
+        } else {
+          button.disabled = false;
+          button.classList.remove("opacity-70", "cursor-wait");
+          if (button.dataset.originalText) button.innerHTML = button.dataset.originalText;
+        }
+      }
+
+      function closeFeedback() { document.getElementById("modal-feedback").classList.add("hidden"); document.getElementById("modal-feedback").classList.remove("flex"); }
+      function showFeedback(type, title, message, confirmAction) {
+        const modal = document.getElementById("modal-feedback");
+        const icon = document.getElementById("feedback-icon");
+        document.getElementById("feedback-title").innerText = title;
+        document.getElementById("feedback-message").innerText = message;
+        icon.className = `mx-auto w-14 h-14 rounded-2xl flex items-center justify-center mb-4 ${type === "confirm" ? "bg-amber-50 text-amber-600" : type === "error" ? "bg-red-50 text-red-600" : "bg-emerald-50 text-emerald-600"}`;
+        icon.innerHTML = `<i data-lucide="${type === "confirm" ? "circle-help" : type === "error" ? "circle-x" : "check-circle-2"}" class="w-7 h-7"></i>`;
+        const actions = document.getElementById("feedback-actions");
+        actions.innerHTML = type === "confirm" ? '<button id="feedback-cancel" class="w-1/2 py-2.5 rounded-xl bg-slate-100 text-slate-600 text-xs font-bold">Batal</button><button id="feedback-confirm" class="w-1/2 py-2.5 rounded-xl bg-red-600 text-white text-xs font-bold">Ya, Hapus</button>' : '<button id="feedback-close" class="w-full py-2.5 rounded-xl bg-blue-600 text-white text-xs font-bold">Tutup</button>';
+        modal.classList.remove("hidden"); modal.classList.add("flex");
+        if (typeof lucide !== "undefined") lucide.createIcons();
+        if (type === "confirm") { document.getElementById("feedback-cancel").onclick = closeFeedback; document.getElementById("feedback-confirm").onclick = () => { closeFeedback(); confirmAction(); }; }
+        else document.getElementById("feedback-close").onclick = closeFeedback;
+      }
+      window.showSuccess = (message) => showFeedback("success", "Berhasil", message);
+      function askConfirm(message) { return new Promise((resolve) => showFeedback("confirm", "Konfirmasi", message, () => resolve(true)) || document.getElementById("feedback-cancel").addEventListener("click", () => resolve(false), { once: true })); }
+
+      document.addEventListener("click", (event) => {
+        const button = event.target.closest("button");
+        if (!button || button.disabled || !["btn-save-user", "btn-save-wilayah", "btn-save-settings", "btn-save-bc"].includes(button.id)) return;
+        setButtonLoading(button, true);
+        setTimeout(() => setButtonLoading(button, false), 1800);
+      });
+
       // --- MANAJEMEN DATA AKUN KARYAWAN ---
       document.getElementById("btn-save-user").onclick = async () => {
         const id = document.getElementById("user-edit-id").value;
@@ -1187,7 +1290,7 @@
         const desaId = document.getElementById("user-desa-id").value;
 
         if (!nama || !username || !password)
-          return alert("Mohon lengkapi form!");
+          return showFeedback("error", "Form Belum Lengkap", "Mohon lengkapi semua kolom yang wajib diisi.");
         const payload = {
           nama,
           namaLengkap: nama,
@@ -1206,19 +1309,32 @@
           }
           window.closeAkunModal();
           await loadAkunPengguna();
+          window.showSuccess("Data akun karyawan berhasil disimpan.");
         } catch (e) {
           console.error(e);
         }
       };
 
       window.deleteUserFirebase = async (id) => {
-        if (confirm("Hapus pengguna ini secara permanen?")) {
+        if (await askConfirm("Pengguna ini akan dihapus secara permanen.")) {
           try {
             await deleteDoc(doc(db, "users", id));
             await loadAkunPengguna();
+            window.showSuccess("Pengguna berhasil dihapus.");
           } catch (e) {
             console.error(e);
           }
+        }
+      };
+
+      window.deleteLogFirebase = async (id) => {
+        if (!(await askConfirm("Log absensi ini akan dihapus secara permanen."))) return;
+        try {
+          await deleteDoc(doc(db, "absensi", id));
+          await loadLogAbsensi();
+        } catch (error) {
+          console.error(error);
+          showFeedback("error", "Gagal", "Log absensi gagal dihapus.");
         }
       };
 
@@ -1231,7 +1347,7 @@
         const radius = document.getElementById("wil-radius").value;
 
         if (!namaDesa || !latitude || !longitude || !radius)
-          return alert("Isi form dengan lengkap!");
+          return showFeedback("error", "Form Belum Lengkap", "Isi nama wilayah dan koordinat dengan lengkap.");
 
         // Force write to both lowercase options so there is no mismatch mapping issue in db
         const payload = {
@@ -1252,16 +1368,18 @@
           }
           window.closeWilayahModal();
           await loadWilayah();
+          window.showSuccess("Wilayah berhasil disimpan.");
         } catch (e) {
           console.error(e);
         }
       };
 
       window.deleteWilayahFirebase = async (id) => {
-        if (confirm("Hapus wilayah ini secara permanen?")) {
+        if (await askConfirm("Wilayah ini akan dihapus secara permanen.")) {
           try {
             await deleteDoc(doc(db, "desas", id));
             await loadWilayah();
+            window.showSuccess("Wilayah berhasil dihapus.");
           } catch (e) {
             console.error(e);
           }
@@ -1290,7 +1408,7 @@
             if (lcon)
               lcon.innerHTML = `<img src="${logoUrl}" class="w-full h-full rounded-xl object-contain">`;
           }
-          alert("Konfigurasi visual & parameter aplikasi berhasil disimpan!");
+          window.showSuccess("Konfigurasi aplikasi berhasil disimpan.");
         } catch (e) {
           console.error(e);
         }
@@ -1336,7 +1454,7 @@
         const scopeDesaId = document.getElementById("bc-target-desa").value;
         const title = document.getElementById("bc-title").value.trim();
         const body = document.getElementById("bc-body").value.trim();
-        if (!title || !body) return alert("Pesan tidak boleh kosong!");
+        if (!title || !body) return showFeedback("error", "Pesan Belum Lengkap", "Judul dan isi pesan wajib diisi.");
 
         const payload = {
           title,
@@ -1354,16 +1472,18 @@
           }
           window.closeBroadcastModal();
           await loadBroadcasts();
+          window.showSuccess("Broadcast berhasil disimpan.");
         } catch (e) {
           console.error(e);
         }
       };
 
       window.deleteBroadcastFirebase = async (id) => {
-        if (confirm("Hapus pesan broadcast ini?")) {
+        if (await askConfirm("Pesan broadcast ini akan dihapus secara permanen.")) {
           try {
             await deleteDoc(doc(db, "broadcasts", id));
             await loadBroadcasts();
+            window.showSuccess("Broadcast berhasil dihapus.");
           } catch (e) {
             console.error(e);
           }
@@ -1469,29 +1589,19 @@
             window.isKecamatanRole(CURRENT_ADMIN.role) ||
             item.id === CURRENT_ADMIN.desaId
           ) {
-            if (grid) {
-              grid.innerHTML += `
-              <div class="bg-white p-4 rounded-xl border border-slate-200 shadow-xs flex flex-col justify-between">
-                <div>
-                  <h5 class="text-xs font-black text-slate-900 flex items-center gap-1"><i data-lucide="map-pin" class="w-3.5 h-3.5 text-blue-600 text-theme-color"></i> ${currentNama}</h5>
-                  <p class="text-[10px] text-slate-500 mt-2 font-mono">Lat: ${currentLat}</p>
-                  <p class="text-[10px] text-slate-500 font-mono">Lng: ${currentLng}</p>
-                  <p class="text-[10px] text-slate-600 font-bold mt-1">Radius: ${item.radius || 0} meter</p>
-                </div>
-                <div class="mt-3 flex gap-1 border-t border-slate-100 pt-2 justify-end">
-                  <button onclick="openWilayahModal('${item.id}')" class="px-2 py-1 bg-slate-100 rounded text-[10px] font-bold cursor-pointer hover:bg-slate-200 text-slate-700">Edit</button>
-                  <button onclick="window.deleteWilayahFirebase('${item.id}')" class="px-2 py-1 bg-red-50 text-red-600 rounded text-[10px] font-bold cursor-pointer hover:bg-red-100">Hapus</button>
-                </div>
-              </div>`;
-            }
             if (select)
               select.innerHTML += `<option value="${item.id}">${currentNama}</option>`;
             if (filterSelect)
               filterSelect.innerHTML += `<option value="${item.id}">${currentNama}</option>`;
             if (filterLogSelect)
               filterLogSelect.innerHTML += `<option value="${item.id}">${currentNama}</option>`;
+            const dashboardFilter = document.getElementById("filter-dashboard-desa");
+            if (dashboardFilter) dashboardFilter.innerHTML += `<option value="${item.id}">${currentNama}</option>`;
           }
         });
+        window.wilayahListFiltered = window.desasList.filter((item) => window.isKecamatanRole(CURRENT_ADMIN.role) || item.id === CURRENT_ADMIN.desaId);
+        window.currentPageWilayah = 1;
+        renderWilayahGrid();
 
         document.getElementById("dash-total-wilayah").innerText =
           window.desasList.length;
@@ -1512,6 +1622,49 @@
         if (typeof lucide !== "undefined") lucide.createIcons();
       }
 
+      window.handleWilayahSearch = function () {
+        const query = document.getElementById("search-wilayah-input").value.toLowerCase().trim();
+        window.wilayahListFiltered = window.desasList.filter((item) => {
+          const allowed = window.isKecamatanRole(CURRENT_ADMIN.role) || item.id === CURRENT_ADMIN.desaId;
+          const name = (item.namaDesa || item.nama || "").toLowerCase();
+          return allowed && name.includes(query);
+        });
+        window.currentPageWilayah = 1;
+        renderWilayahGrid();
+      };
+
+      window.handleWilayahItemsPerPage = function () {
+        window.itemsPerPageWilayah = Number(document.getElementById("wilayah-items-per-page").value);
+        window.currentPageWilayah = 1;
+        renderWilayahGrid();
+      };
+
+      window.changeWilayahPage = function (dir) {
+        window.currentPageWilayah += dir;
+        renderWilayahGrid();
+      };
+
+      function renderWilayahGrid() {
+        const grid = document.getElementById("grid-wilayah-container");
+        if (!grid) return;
+        const total = window.wilayahListFiltered.length;
+        const maxPage = Math.ceil(total / window.itemsPerPageWilayah) || 1;
+        window.currentPageWilayah = Math.max(1, Math.min(window.currentPageWilayah, maxPage));
+        const start = (window.currentPageWilayah - 1) * window.itemsPerPageWilayah;
+        const end = Math.min(start + window.itemsPerPageWilayah, total);
+        grid.innerHTML = "";
+        window.wilayahListFiltered.slice(start, end).forEach((item) => {
+          const lat = item.latitude !== undefined ? item.latitude : item.lat !== undefined ? item.lat : 0;
+          const lng = item.longitude !== undefined ? item.longitude : item.lon !== undefined ? item.lon : 0;
+          const name = item.namaDesa || item.nama || "Tanpa Nama";
+          grid.innerHTML += `<div class="bg-white p-4 rounded-xl border border-slate-200 shadow-xs flex flex-col justify-between"><div><h5 class="text-xs font-black text-slate-900 flex items-center gap-1"><i data-lucide="map-pin" class="w-3.5 h-3.5 text-blue-600 text-theme-color"></i> ${name}</h5><p class="text-[10px] text-slate-500 mt-2 font-mono">Lat: ${lat}</p><p class="text-[10px] text-slate-500 font-mono">Lng: ${lng}</p><p class="text-[10px] text-slate-600 font-bold mt-1">Radius: ${item.radius || 0} meter</p></div><div class="mt-3 flex gap-1 border-t border-slate-100 pt-2 justify-end"><button onclick="openWilayahModal('${item.id}')" class="px-2 py-1 bg-slate-100 rounded text-[10px] font-bold cursor-pointer hover:bg-slate-200 text-slate-700">Edit</button><button onclick="window.deleteWilayahFirebase('${item.id}')" class="px-2 py-1 bg-red-50 text-red-600 rounded text-[10px] font-bold cursor-pointer hover:bg-red-100">Hapus</button></div></div>`;
+        });
+        document.getElementById("wilayah-pagination-info").innerText = `Menampilkan ${total ? start + 1 : 0}-${end} dari ${total} data`;
+        document.getElementById("btn-prev-wilayah").disabled = window.currentPageWilayah === 1;
+        document.getElementById("btn-next-wilayah").disabled = window.currentPageWilayah === maxPage;
+        if (typeof lucide !== "undefined") lucide.createIcons();
+      }
+
       async function loadLogAbsensi() {
         const snap = await getDocs(collection(db, "absensi"));
         window.logListRaw = [];
@@ -1525,14 +1678,37 @@
             window.isKecamatanRole(CURRENT_ADMIN.role) ||
             item.desaId === CURRENT_ADMIN.desaId
           ) {
-            if (item.tanggal === hariIni) totalHadir++;
             window.logListRaw.push(item);
           }
         });
 
-        window.logListFiltered = [...window.logListRaw];
-        document.getElementById("dash-total-absen").innerText = totalHadir;
+        window.logListFiltered = groupAttendanceLogs(window.logListRaw);
+        renderDashboardCharts();
+        document.getElementById("dash-total-absen").innerText = new Set(window.logListRaw.filter((item) => item.tanggal === hariIni).map((item) => item.userId || item.namaStaff || item.nama)).size;
         window.renderLogTable();
+      }
+
+      window.handleDashboardFilter = function () {
+        window.dashboardFilterDesa = document.getElementById("filter-dashboard-desa").value;
+        renderDashboardCharts();
+      };
+
+      function renderDashboardCharts() {
+        const filter = window.dashboardFilterDesa;
+        const staff = window.userListRaw.filter((user) => filter === "all" || user.desaId === filter);
+        const allowedStaff = new Set(staff.map((user) => user.id));
+        const logs = window.logListRaw.filter((log) => filter === "all" || log.desaId === filter);
+        const now = new Date();
+        const getDate = (log) => log.timestamp?.toDate ? log.timestamp.toDate() : new Date(log.timestamp);
+        const monthLogs = logs.filter((log) => { const date = getDate(log); return date.getFullYear() === now.getFullYear() && date.getMonth() === now.getMonth(); });
+        const today = now.toLocaleDateString("id-ID");
+        const unique = (items) => new Set(items.map((item) => item.userId || item.namaStaff || item.nama)).size;
+        const monthCount = unique(monthLogs.filter((log) => allowedStaff.size === 0 || allowedStaff.has(log.userId)));
+        const todayCount = unique(logs.filter((log) => log.tanggal === today && (allowedStaff.size === 0 || allowedStaff.has(log.userId))));
+        const total = staff.length;
+        const setDonut = (prefix, value) => { const percent = total ? Math.min(value / total, 1) : 0; document.getElementById(`donut-${prefix}`).style.setProperty("--donut-value", `${percent * 360}deg`); document.getElementById(`donut-${prefix}-value`).innerText = value; document.getElementById(`donut-${prefix}-label`).innerText = `${value} dari ${total}`; };
+        setDonut("month", monthCount);
+        setDonut("today", todayCount);
       }
 
       // --- INITIALIZATION ---
