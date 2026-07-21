@@ -3,9 +3,11 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover" />
-    <title>PANEL KONTROL ADMIN - RESTORED FULL</title>
+    <title>PANEL KONTROL ADMIN</title>
     <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
     <script src="https://unpkg.com/lucide@latest"></script>
+    <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/jspdf@2.5.1/dist/jspdf.umd.min.js"></script>
     <style>
       body {
         -webkit-tap-highlight-color: transparent;
@@ -217,6 +219,12 @@
               <div class="border border-slate-100 rounded-2xl p-5 flex items-center gap-5"><div id="donut-today" class="attendance-donut w-28 h-28 rounded-full flex items-center justify-center shrink-0"><div class="w-20 h-20 bg-white rounded-full flex flex-col items-center justify-center"><strong id="donut-today-value" class="text-xl font-black text-slate-900">0</strong><span class="text-[9px] text-slate-400 font-bold">KARYAWAN</span></div></div><div><p class="text-[11px] text-slate-400 font-bold uppercase tracking-wider">Absen Hari Ini</p><h4 id="donut-today-label" class="text-lg font-black text-slate-900 mt-1">0 dari 0</h4></div></div>
             </div>
           </div>
+
+          <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-xs mb-6">
+            <h3 class="text-sm font-black text-slate-900">Statistik Wilayah</h3>
+            <p class="text-[11px] text-slate-500 mt-1 mb-4">Perbandingan karyawan yang sudah absen hari ini di setiap wilayah.</p>
+            <div id="dashboard-region-stats" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3"></div>
+          </div>
         </div>
 
         <!-- TAB 1: LOG ABSENSI (WITH FILTER, SEARCH & PAGINATION) -->
@@ -245,6 +253,10 @@
               >
                 <option value="all">Semua Wilayah</option>
               </select>
+              <input id="filter-log-start" type="date" onchange="handleLogSearch()" class="p-2 bg-white border border-slate-200 rounded-xl text-xs shadow-xs" />
+              <input id="filter-log-end" type="date" onchange="handleLogSearch()" class="p-2 bg-white border border-slate-200 rounded-xl text-xs shadow-xs" />
+              <button onclick="exportLogExcel()" class="px-3 py-2 bg-emerald-600 text-white rounded-xl text-xs font-bold cursor-pointer">Excel</button>
+              <button onclick="exportLogPdf()" class="px-3 py-2 bg-red-600 text-white rounded-xl text-xs font-bold cursor-pointer">PDF</button>
             </div>
           </div>
 
@@ -1132,6 +1144,8 @@
           .value.toLowerCase()
           .trim();
         const filterDesa = document.getElementById("filter-log-desa").value;
+        const startDate = document.getElementById("filter-log-start").value;
+        const endDate = document.getElementById("filter-log-end").value;
 
         const matchingLogs = window.logListRaw.filter((log) => {
           const matchQuery =
@@ -1139,7 +1153,9 @@
             (log.nama && log.nama.toLowerCase().includes(q)) ||
             (log.namaLengkap && log.namaLengkap.toLowerCase().includes(q));
           const matchDesa = filterDesa === "all" || log.desaId === filterDesa;
-          return matchQuery && matchDesa;
+          const logDate = log.dateKey || "";
+          const matchDate = (!startDate || logDate >= startDate) && (!endDate || logDate <= endDate);
+          return matchQuery && matchDesa && matchDate;
         });
         window.logListFiltered = groupAttendanceLogs(matchingLogs);
         window.currentPageLog = 1;
@@ -1291,7 +1307,7 @@
 
         if (!nama || !username || !password)
           return showFeedback("error", "Form Belum Lengkap", "Mohon lengkapi semua kolom yang wajib diisi.");
-        const payload = {
+          const payload = {
           nama,
           namaLengkap: nama,
           username,
@@ -1463,6 +1479,7 @@
           message: body,
           scopeDesaId,
           date: new Date().toLocaleString("id-ID"),
+          notificationStatus: "pending",
         };
         try {
           if (id) {
@@ -1709,7 +1726,43 @@
         const setDonut = (prefix, value) => { const percent = total ? Math.min(value / total, 1) : 0; document.getElementById(`donut-${prefix}`).style.setProperty("--donut-value", `${percent * 360}deg`); document.getElementById(`donut-${prefix}-value`).innerText = value; document.getElementById(`donut-${prefix}-label`).innerText = `${value} dari ${total}`; };
         setDonut("month", monthCount);
         setDonut("today", todayCount);
+        renderRegionStats();
       }
+
+      function renderRegionStats() {
+        const container = document.getElementById("dashboard-region-stats");
+        if (!container) return;
+        const today = new Date().toLocaleDateString("id-ID");
+        const visible = window.desasList.filter((desa) => window.isKecamatanRole(CURRENT_ADMIN.role) || desa.id === CURRENT_ADMIN.desaId);
+        container.innerHTML = visible.map((desa) => {
+          const staff = window.userListRaw.filter((user) => user.desaId === desa.id);
+          const present = new Set(window.logListRaw.filter((log) => log.desaId === desa.id && log.tanggal === today).map((log) => log.userId || log.namaStaff || log.nama)).size;
+          const name = desa.namaDesa || desa.nama || "Tanpa Nama";
+          return `<div class="p-4 rounded-xl border border-slate-100 bg-slate-50"><div class="flex justify-between gap-2"><span class="text-xs font-black text-slate-800">${name}</span><span class="text-xs font-black text-blue-600">${present}/${staff.length}</span></div><div class="h-2 bg-slate-200 rounded-full mt-3 overflow-hidden"><div class="h-full bg-blue-600 rounded-full" style="width:${staff.length ? Math.min((present / staff.length) * 100, 100) : 0}%"></div></div><p class="text-[10px] text-slate-500 mt-2">${present} hadir hari ini</p></div>`;
+        }).join("") || `<p class="text-xs text-slate-400">Belum ada data wilayah.</p>`;
+      }
+
+      function getExportRows() {
+        return window.logListFiltered.map((group) => {
+          const first = group.entries[0];
+          const wilayah = window.desasList.find((desa) => desa.id === first.desaId);
+          const pergi = group.entries.find((item) => (item.tipeAbsen || item.jenisAbsen || "pergi").toLowerCase() === "pergi");
+          const pulang = group.entries.find((item) => (item.tipeAbsen || item.jenisAbsen || "").toLowerCase() === "pulang");
+          return { "Nama Staff": first.namaStaff || first.nama || first.namaLengkap || "-", "Wilayah Dinas": wilayah ? (wilayah.namaDesa || wilayah.nama) : "-", Tanggal: first.tanggal || "-", "Absen Pergi": pergi?.waktu || "-", "Absen Pulang": pulang?.waktu || "-", Status: group.entries.length === 2 ? "Lengkap" : "Belum Lengkap" };
+        });
+      }
+      window.exportLogExcel = function () {
+        const rows = getExportRows();
+        const sheet = XLSX.utils.json_to_sheet(rows);
+        const book = XLSX.utils.book_new(); XLSX.utils.book_append_sheet(book, sheet, "Log Absensi");
+        XLSX.writeFile(book, `log-absensi-${new Date().toISOString().slice(0, 10)}.xlsx`);
+      };
+      window.exportLogPdf = function () {
+        const rows = getExportRows(); const { jsPDF } = window.jspdf; const pdf = new jsPDF({ orientation: "landscape" });
+        pdf.setFontSize(14); pdf.text("Laporan Log Absensi", 14, 15); pdf.setFontSize(8);
+        rows.forEach((row, index) => pdf.text(`${index + 1}. ${row["Nama Staff"]} | ${row["Wilayah Dinas"]} | ${row.Tanggal} | Pergi: ${row["Absen Pergi"]} | Pulang: ${row["Absen Pulang"]} | ${row.Status}`, 14, 25 + index * 7));
+        pdf.save(`log-absensi-${new Date().toISOString().slice(0, 10)}.pdf`);
+      };
 
       // --- INITIALIZATION ---
       async function initSystem() {
